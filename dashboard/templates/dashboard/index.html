@@ -1,0 +1,332 @@
+
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+    <!-- Cabeçalho / Boas-vindas -->
+    <div class="text-center d-flex flex-column align-items-center mb-4" style="margin-top: -10px;">
+
+        <!-- Logotipo OJETIL -->
+        <img src="{% static 'main/images/logo.jpeg' %}" alt="Logotipo OJETIL" class="img-fluid mb-2" style="max-height: 90px; object-fit: contain;">
+
+        <!-- Título e subtítulo -->
+        <h2 class="fw-bold mb-1">Sistema de Registo de Membros da OJETIL</h2>
+        <p class="fw-bold text-dark mb-2">Juventude Unida, Timor-Leste Mais Forte</p>
+
+        <!-- Data e hora -->
+        <div>
+            <span class="badge bg-light text-dark border px-3 py-2 fw-normal">
+                <i class="bi bi-calendar3 me-1"></i> {% now "l, d F Y H:i" %}
+            </span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Cartões de Estatísticas -->
+<div class="row g-3 mb-4">
+
+    <!-- Total de Membros -->
+    <div class="col-md">
+        <div class="card border-0 shadow-sm text-dark bg-primary h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ total_members }}</h2>
+                    <small class="text-dark-50"><b>Total de Membros</b></small>
+                </div>
+                <i class="bi bi-people-fill fs-1 opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Novos Registos -->
+    <div class="col-md">
+        <div class="card border-0 shadow-sm text-dark bg-success h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ total_members }}</h2>
+                    <small class="text-dark-50"><b>Novos Registos</b></small>
+                </div>
+                <i class="bi bi-person-plus-fill fs-1 opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aguardando Aprovação -->
+    <div class="col-md">
+        <div class="card border-0 shadow-sm text-dark bg-warning h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ pending_members }}</h2>
+                    <small class="text-dark-50"><b>Aguardando Aprovação</b></small>
+                </div>
+                <i class="bi bi-clock-history fs-1 opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membros Ativos -->
+    <div class="col-md">
+        <div class="card border-0 shadow-sm text-dark bg-primary h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ approved_members }}</h2>
+                    <small class="text-dark-50"><b>Membros Ativos</b></small>
+                </div>
+                <i class="bi bi-person-check-fill fs-1 opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membros Inativos -->
+    <div class="col-md">
+        <div class="card border-0 shadow-sm text-dark bg-danger h-100">
+            <div class="card-body d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="fw-bold mb-0">{{ inactive_members }}</h2>
+                    <small class="text-dark-50"><b>Membros Inativos</b></small>
+                </div>
+                <i class="bi bi-person-x-fill fs-1 opacity-50"></i>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Secção de Gráficos -->
+<div class="row g-3 mb-4">
+
+    <!-- Tendência de Registos -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Evolução dos Registos de Membros</h6>
+                <canvas id="trendChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Membros por Município -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Membros por Município</h6>
+                <canvas id="districtChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estado dos Membros -->
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center">
+                <h6 class="fw-bold mb-3 text-start">Estado dos Membros</h6>
+                <canvas id="statusChart" style="max-height: 200px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Ações Rápidas -->
+<div class="mb-4">
+    <h6 class="fw-bold mb-3">Ações Rápidas</h6>
+
+    <div class="row g-2">
+        <div class="col">
+            <a href="{% url 'members:register' %}" class="btn btn-primary w-100 py-3 fw-bold">
+                <i class="bi bi-person-plus d-block fs-4 mb-1"></i>
+                Registar Novo Membro
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'members:list' %}" class="btn btn-success w-100 py-3 fw-bold">
+                <i class="bi bi-check-circle d-block fs-4 mb-1"></i>
+                Analisar Inscrições
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'members:id_cards' %}" class="btn text-white w-100 py-3 fw-bold" style="background-color: #6f42c1;">
+                <i class="bi bi-card-heading d-block fs-4 mb-1"></i>
+                Gerar Cartão
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'events:event_list' %}" class="btn btn-warning text-white w-100 py-3 fw-bold">
+                <i class="bi bi-calendar-event d-block fs-4 mb-1"></i>
+                Gerir Eventos
+            </a>
+        </div>
+
+        <div class="col">
+            <a href="{% url 'report:member_report' %}" class="btn btn-danger w-100 py-3 fw-bold">
+                <i class="bi bi-file-earmark-bar-graph d-block fs-4 mb-1"></i>
+                Consultar Relatórios
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabelas e Informações do Sistema -->
+<div class="row g-3">
+
+    <!-- Registos Recentes -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0">Registos Recentes</h6>
+                    <a href="{% url 'members:list' %}" class="small text-decoration-none">Ver Todos</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle small mb-0">
+                        <tbody>
+                            {% for m in recent_registrations %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary rounded-circle">
+                                        {{ m.full_name|slice:":2"|upper }}
+                                    </span>
+                                </td>
+
+                                <td><strong>{{ m.full_name }}</strong></td>
+                                <td>{{ m.district }}</td>
+
+                                <td>
+                                  {% if m.status == 'Ativo' %}
+                                  <span class="badge bg-success">Ativo</span>
+                              {% elif m.status == 'Em Aprovação' %}
+                                  <span class="badge bg-warning text-dark">Aguardando Aprovação</span>
+                              {% elif m.status == 'Inativo' %}
+                                  <span class="badge bg-danger">Inativo</span>
+                              {% else %}
+                                  <span class="badge bg-secondary">{{ m.status }}</span>
+                              {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">
+                                    Ainda não existem novos membros registados.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Atividades Recentes -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">Atividades Recentes</h6>
+
+                <ul class="list-group list-group-flush small">
+                    {% for m in recent_registrations %}
+                        <li class="list-group-item border-0 py-2 px-0">
+                            <i class="bi bi-person-plus text-primary me-2"></i>
+                            <strong>Membro registado:</strong> {{ m.full_name }}
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item border-0 py-2 px-0 text-muted">
+                            Ainda não existem atividades.
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informações do Sistema -->
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm h-100 bg-light">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3">
+                    <i class="bi bi-gear-fill me-1"></i>
+                    Informações do Sistema
+                </h6>
+
+                <div class="small">
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Versão do Sistema</span>
+                        <strong>1.0.0</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Estado do Servidor</span>
+                        <strong class="text-success">Online</strong>
+                    </div>
+
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Base de Dados</span>
+                        <strong class="text-success">Conectada</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</div>
+
+<!-- Script Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Gráfico de Evolução dos Registos
+    new Chart(document.getElementById('trendChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'],
+            datasets: [{
+                label: 'Registos',
+                data: [0, 0, 0, 0, 0, 0, 0, 0, {{ total_members }}],
+                backgroundColor: '#0d6efd'
+            }]
+        }
+    });
+
+    // Gráfico de Membros por Município
+    new Chart(document.getElementById('districtChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ district_labels|safe }},
+            datasets: [{
+                label: 'Membros',
+                data: {{ district_counts|safe }},
+                backgroundColor: '#198754'
+            }]
+        },
+        options: {
+            indexAxis: 'y'
+        }
+    });
+
+    // Gráfico do Estado dos Membros
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Ativo', 'Em Aprovação', 'Inativos'],
+            datasets: [{
+                data: [
+                    {{ approved_members }},
+                    {{ pending_members }},
+                    {{ inactive_members }}
+                ],
+                backgroundColor: ['#198754', '#ffc107', '#dc3545']
+            }]
+        }
+    });
+</script>
+{% endblock %}

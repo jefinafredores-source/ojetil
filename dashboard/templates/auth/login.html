@@ -1,0 +1,505 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OJETIL - Iniciar Sessão</title>
+
+  <!-- Ícones FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* ===== Fundo: fotografia em toda a página ===== */
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 55%),
+        url("{% static 'main/images/login.jpeg' %}") center bottom / cover no-repeat fixed,
+        linear-gradient(180deg, #8fc3f2 0%, #f6d7a8 55%, #2f4f6f 100%);
+    }
+
+    .login-container {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== Secção esquerda: apresentação ===== */
+    .left-section {
+      flex: 1.2;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px;
+    }
+
+    .brand-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand-logo {
+      width: 110px;
+      height: auto;
+      border-radius: 6px;
+    }
+
+    .brand-title h1 {
+      color: #0b2545;
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      line-height: 1;
+    }
+
+    .brand-title p {
+      color: #14283b;
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .motto-line {
+      margin-top: 8px;
+    }
+
+    .motto-line span {
+      font-style: italic;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .hero-quote {
+      margin: 40px 0 auto 60px;
+      font-size: 26px;
+      font-weight: 800;
+      color: #0b2545;
+      max-width: 340px;
+      line-height: 1.25;
+    }
+
+    .bottom-features {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(11, 37, 69, 0.85);
+      padding: 15px;
+      border-radius: 8px;
+      color: white;
+      text-align: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .feature-item i {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    .feature-item p {
+      font-size: 11px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* ===== Secção direita: formulário de acesso ===== */
+    .right-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      background: transparent;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(6px);
+      padding: 40px 35px;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.22);
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      background: #e1effe;
+      color: #1a56db;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+      font-size: 24px;
+    }
+
+    .login-card h2 {
+      color: #0b2545;
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .login-card .subtitle {
+      color: #6b7280;
+      font-size: 14px;
+      display: block;
+      margin-bottom: 25px;
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 15px;
+    }
+
+    .input-group i.left-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+    }
+
+    .input-group i.right-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      cursor: pointer;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 13px 42px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .input-group input:focus {
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      margin-bottom: 20px;
+      color: #374151;
+    }
+
+    .form-options label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .form-options a {
+      color: #1a56db;
+      text-decoration: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: #1d61e8;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.3s;
+    }
+
+    .btn-submit:hover {
+      background: #144bb8;
+    }
+
+    .divider {
+      margin: 20px 0;
+      position: relative;
+      text-align: center;
+    }
+
+    .divider::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 1px;
+      background: #e5e7eb;
+    }
+
+    .divider span {
+      background: #fff;
+      padding: 0 10px;
+      color: #9ca3af;
+      font-size: 12px;
+      position: relative;
+    }
+
+    .btn-register {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: #1d61e8;
+      border: 1.5px solid #1d61e8;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+
+    .btn-register:hover {
+      background: #eff6ff;
+    }
+
+    /* ===== Informações no rodapé ===== */
+    .card-footer-info {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 0 1px 4px rgba(0,0,0,.65);
+    }
+
+    .card-footer-info span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .copyright {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 0 1px 4px rgba(0,0,0,.65);
+    }
+
+    @media (max-width: 900px) {
+      .left-section {
+        display: none;
+      }
+
+      .right-section {
+        min-height: 100vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login-container">
+
+  <!-- Apresentação institucional -->
+  <div class="left-section">
+    <div>
+      <div class="brand-header">
+        <img src="{% static 'main/images/logo.jpeg' %}"
+             alt="Logótipo da OJETIL"
+             class="brand-logo"
+             onerror="this.style.display='none'">
+
+        <div class="brand-title">
+          <h1>OJETIL</h1>
+          <p>
+            Organização da Juventude e dos<br>
+            Estudantes de Timor-Leste
+          </p>
+          <div class="motto-line">
+            <span>Saber para Servir</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-quote">
+        “Juventude Unida por um Timor-Leste Mais Forte”
+      </div>
+    </div>
+
+    <div class="bottom-features">
+      <div class="feature-item">
+        <i class="fa-solid fa-users"></i>
+        <p>JUVENTUDE</p>
+      </div>
+
+      <div class="feature-item">
+        <i class="fa-solid fa-book-open"></i>
+        <p>LIDERANÇA</p>
+      </div>
+
+      <div class="feature-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <p>DESENVOLVIMENTO</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cartão de acesso -->
+  <div class="right-section">
+    <div class="login-card">
+
+      <div class="user-avatar">
+        <i class="fa-solid fa-user"></i>
+      </div>
+
+      <h2>Bem-vindo</h2>
+      <span class="subtitle">
+        Aceda ao Sistema OJETIL
+      </span>
+
+      {% if form.errors %}
+        <div class="alert-error" role="alert">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Nome de utilizador ou palavra-passe incorretos.
+          Por favor, tente novamente.
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'dashboard:login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="input-group">
+          <i class="fa-solid fa-user left-icon"></i>
+          <input type="text"
+                 name="username"
+                 placeholder="Nome de utilizador"
+                 value="{{ form.username.value|default:'' }}"
+                 autocomplete="username"
+                 required
+                 autofocus>
+        </div>
+
+        <div class="input-group">
+          <i class="fa-solid fa-lock left-icon"></i>
+          <input type="password"
+                 name="password"
+                 id="password"
+                 placeholder="Palavra-passe"
+                 autocomplete="current-password"
+                 required>
+
+          <i class="fa-solid fa-eye-slash right-icon"
+             id="toggleIcon"
+             onclick="togglePassword()"></i>
+        </div>
+
+        <div class="form-options">
+          <label>
+            <input type="checkbox" name="remember_me" checked>
+            Lembrar-me
+          </label>
+
+          <a href="#">
+            Esqueceu-se da palavra-passe?
+          </a>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Iniciar Sessão
+        </button>
+      </form>
+
+      {% comment %} <div class="divider">
+        <span>ou</span>
+      </div>
+
+      <a href="#" class="btn-register">
+        <i class="fa-solid fa-user-plus"></i>
+        Registar Novo Membro
+      </a> {% endcomment %}
+
+    </div>
+
+    <!-- Informações de contacto -->
+    <div class="card-footer-info">
+      <span>
+        <i class="fa-solid fa-globe"></i>
+        www.ojetil.tl
+      </span>
+
+      <span>
+        <i class="fa-solid fa-envelope"></i>
+        info@ojetil.tl
+      </span>
+
+      <span>
+        <i class="fa-solid fa-location-dot"></i>
+        Díli, Timor-Leste
+      </span>
+    </div>
+
+    <div class="copyright">
+      © 2026 OJETIL. Todos os direitos reservados.
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function togglePassword() {
+    const pw = document.getElementById("password");
+    const icon = document.getElementById("toggleIcon");
+
+    const show = pw.type === "password";
+
+    pw.type = show ? "text" : "password";
+
+    icon.classList.toggle("fa-eye", show);
+    icon.classList.toggle("fa-eye-slash", !show);
+  }
+</script>
+
+</body>
+</html>

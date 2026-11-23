@@ -1,0 +1,73 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Configurações Gerais</h3>
+
+        <a href="{% url 'system:dashboard' %}"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar ao Painel de Controlo
+        </a>
+    </div>
+
+<div class="container-fluid py-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary">{{ title }}</h3>
+        <p class="text-muted">Formulário de gestão de utilizadores da OJETIL.</p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <form method="POST">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small class="text-muted d-block">
+                                {{ field.help_text|safe }}
+                            </small>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <small class="text-danger d-block">
+                                {{ error }}
+                            </small>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> {{ button_text }}
+                    </button>
+
+                    <a href="{% url 'system:user_management' %}"
+                       class="btn btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

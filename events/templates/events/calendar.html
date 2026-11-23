@@ -1,0 +1,973 @@
+
+```django
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+/* ==============================
+   OJETIL MODERN EVENT CALENDAR
+============================== */
+
+.calendar-page {
+    padding: 22px;
+    background: #f3f6fc;
+    min-height: 100vh;
+    color: #172554;
+    font-size: 13px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.calendar-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.calendar-heading-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #dceaff, #c5d9ff);
+    color: #1456d9;
+    font-size: 24px;
+    box-shadow: 0 3px 10px #1764ed20;
+}
+
+.calendar-heading h3 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 800;
+    color: #12377d;
+}
+
+.calendar-heading p {
+    margin: 4px 0 0;
+    color: #74819a;
+    font-size: 12px;
+}
+
+.calendar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 13px;
+    border: 1px solid #dce5f3;
+    border-radius: 7px;
+    background: white;
+    color: #24416f;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.calendar-btn:hover {
+    background: #edf4ff;
+    color: #1557d9;
+    border-color: #b9d0ff;
+}
+
+.calendar-btn-primary {
+    background: linear-gradient(135deg, #1764ed, #084fc6);
+    border-color: #1764ed;
+    color: white;
+    box-shadow: 0 3px 9px #1764ed30;
+}
+
+.calendar-btn-primary:hover {
+    background: #064fc6;
+    color: white;
+}
+
+.calendar-breadcrumb {
+    margin-top: 5px;
+    font-size: 11px;
+    color: #7b8aa4;
+}
+
+.calendar-breadcrumb a {
+    color: #1764ed;
+    text-decoration: none;
+}
+
+/* STATISTICS */
+
+.calendar-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.calendar-stat {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 17px;
+    background: white;
+    border: 1px solid #e7edf6;
+    border-radius: 11px;
+    box-shadow: 0 3px 10px rgba(27, 55, 100, .05);
+    transition: .2s;
+}
+
+.calendar-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(27, 55, 100, .09);
+}
+
+.calendar-stat-icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 11px;
+    font-size: 22px;
+}
+
+.stat-blue {
+    background: #e4edff;
+    color: #1764ed;
+}
+
+.stat-green {
+    background: #dff9ed;
+    color: #0c9b65;
+}
+
+.stat-orange {
+    background: #fff0dc;
+    color: #ed8c15;
+}
+
+.calendar-stat strong {
+    display: block;
+    font-size: 23px;
+    line-height: 1.2;
+    color: #12377d;
+}
+
+.calendar-stat span {
+    display: block;
+    margin-top: 4px;
+    color: #7b8aa4;
+    font-size: 11px;
+}
+
+/* MAIN LAYOUT */
+
+.calendar-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 285px;
+    gap: 16px;
+    align-items: start;
+}
+
+.calendar-panel,
+.calendar-side-card {
+    background: white;
+    border: 1px solid #e3eaf5;
+    border-radius: 11px;
+    box-shadow: 0 3px 10px rgba(27, 55, 100, .05);
+    overflow: hidden;
+}
+
+.calendar-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 17px;
+    border-bottom: 1px solid #e7edf6;
+    background: linear-gradient(90deg, #ffffff, #f8faff);
+}
+
+.calendar-month-title {
+    margin: 0;
+    color: #12377d;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.calendar-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.calendar-view-label {
+    padding: 8px 11px;
+    border: 1px solid #dce6f5;
+    background: #edf4ff;
+    color: #2459bb;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+/* MONTH GRID */
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar-weekday {
+    padding: 13px 3px;
+    text-align: center;
+    background: #edf3fc;
+    border-right: 1px solid #e1e9f5;
+    border-bottom: 1px solid #e1e9f5;
+    color: #526783;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.calendar-day {
+    min-width: 0;
+    min-height: 125px;
+    padding: 7px;
+    border-right: 1px solid #e7edf6;
+    border-bottom: 1px solid #e7edf6;
+    background: white;
+    overflow: hidden;
+    transition: background .2s;
+}
+
+.calendar-day:hover {
+    background: #f8faff;
+}
+
+.calendar-day:nth-child(7n) {
+    border-right: none;
+}
+
+.calendar-day-outside {
+    background: #f7f9fd;
+}
+
+.calendar-day-outside .calendar-day-number {
+    color: #c0c9d8;
+}
+
+.calendar-day-number {
+    display: inline-flex;
+    width: 27px;
+    height: 27px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin-bottom: 7px;
+    color: #324766;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.calendar-day-today .calendar-day-number {
+    color: white;
+    background: linear-gradient(135deg, #1764ed, #084fc6);
+    box-shadow: 0 2px 7px #1764ed50;
+}
+
+/* EVENT COLORS */
+
+.calendar-event {
+    display: block;
+    margin-bottom: 5px;
+    padding: 6px 7px;
+    border-left: 4px solid #2563eb;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 10px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    transition: .2s;
+}
+
+.calendar-event:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,.10);
+    filter: brightness(.97);
+}
+
+/* Evento planeado */
+.event-upcoming {
+    background: #e8f0ff;
+    border-left-color: #2563eb;
+    color: #1e40af;
+}
+
+/* Evento em curso */
+.event-ongoing {
+    background: #fff1df;
+    border-left-color: #f59e0b;
+    color: #a65308;
+}
+
+/* Evento concluído */
+.event-completed {
+    background: #dcfce7;
+    border-left-color: #16a34a;
+    color: #166534;
+}
+
+/* Evento cancelado */
+.event-cancelled {
+    background: #fee2e2;
+    border-left-color: #dc2626;
+    color: #991b1b;
+}
+
+.calendar-event-time {
+    display: block;
+    margin-bottom: 2px;
+    font-weight: 800;
+}
+
+.calendar-event-title {
+    display: block;
+    font-weight: 800;
+}
+
+.calendar-event-location {
+    display: block;
+    margin-top: 3px;
+    color: inherit;
+    opacity: .75;
+    font-size: 9px;
+}
+
+.calendar-no-events {
+    padding: 28px 12px;
+    text-align: center;
+    color: #8794a9;
+    font-size: 12px;
+    background: #fafcff;
+}
+
+.calendar-no-events i {
+    display: block;
+    font-size: 30px;
+    margin-bottom: 8px;
+    color: #9aabc4;
+}
+
+.calendar-no-events a {
+    display: inline-block;
+    margin-top: 8px;
+    color: #1764ed;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+/* LEGEND */
+
+.calendar-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    padding: 13px 16px;
+    border-top: 1px solid #e7edf6;
+    background: #fbfcff;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #62738e;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.legend-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.legend-blue { background: #2563eb; }
+.legend-orange { background: #f59e0b; }
+.legend-green { background: #16a34a; }
+.legend-red { background: #dc2626; }
+
+/* SIDEBAR */
+
+.calendar-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.calendar-side-card {
+    padding: 16px;
+}
+
+.calendar-side-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 13px;
+}
+
+.calendar-side-title h5 {
+    margin: 0;
+    font-size: 13px;
+    color: #18376c;
+    font-weight: 800;
+}
+
+.calendar-side-title a {
+    color: #1764ed;
+    text-decoration: none;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.upcoming-event {
+    display: flex;
+    gap: 10px;
+    padding: 11px 0;
+    border-bottom: 1px solid #edf1f7;
+}
+
+.upcoming-event:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.upcoming-date {
+    width: 42px;
+    min-width: 42px;
+    height: 46px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background: #eaf1ff;
+    color: #1764ed;
+}
+
+.upcoming-date strong {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.upcoming-date span {
+    margin-top: 4px;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.upcoming-info {
+    min-width: 0;
+}
+
+.upcoming-info a {
+    display: block;
+    color: #233c66;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.upcoming-info a:hover {
+    color: #1764ed;
+}
+
+.upcoming-info p {
+    margin: 4px 0 0;
+    color: #8591a7;
+    font-size: 10px;
+    overflow-wrap: anywhere;
+}
+
+/* QUICK ACTIONS */
+
+.calendar-quick-action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 9px;
+    border-radius: 7px;
+    color: white;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    transition: .2s;
+}
+
+.calendar-quick-action:last-child {
+    margin-bottom: 0;
+}
+
+.action-blue { background: #1764ed; }
+.action-green { background: #079b64; }
+.action-orange { background: #f39420; }
+.action-purple { background: #8246d9; }
+
+.calendar-quick-action:hover {
+    filter: brightness(.92);
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* FOOTER */
+
+.calendar-footer {
+    margin-top: 20px;
+    padding: 14px 17px;
+    background: linear-gradient(110deg, #10316c, #1764bd);
+    border-radius: 9px;
+    color: white;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    box-shadow: 0 3px 10px #10316c20;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+    .calendar-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .calendar-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .calendar-page {
+        padding: 10px;
+    }
+
+    .calendar-heading h3 {
+        font-size: 19px;
+    }
+
+    .calendar-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-day {
+        min-height: 82px;
+        padding: 3px;
+    }
+
+    .calendar-day-number {
+        width: 22px;
+        height: 22px;
+        font-size: 10px;
+    }
+
+    .calendar-event {
+        padding: 3px;
+        font-size: 9px;
+        border-left-width: 3px;
+    }
+
+    .calendar-event-location {
+        display: none;
+    }
+
+    .calendar-weekday {
+        font-size: 9px;
+        padding: 9px 1px;
+    }
+
+    .calendar-toolbar {
+        padding: 10px;
+    }
+
+    .calendar-month-title {
+        font-size: 16px;
+    }
+
+    .calendar-legend {
+        gap: 9px;
+    }
+
+    .calendar-footer {
+        font-size: 10px;
+    }
+}
+</style>
+
+
+<div class="calendar-page">
+
+    <!-- CABEÇALHO -->
+    <div class="calendar-header">
+
+        <div class="calendar-heading">
+            <div class="calendar-heading-icon">
+                <i class="bi bi-calendar3"></i>
+            </div>
+
+            <div>
+                <h3>Calendário de Eventos</h3>
+                <p>Gerir eventos, reuniões e atividades da OJETIL.</p>
+
+                <div class="calendar-breadcrumb">
+                    <a href="/">Painel</a>
+                    &nbsp;›&nbsp; Calendário
+                </div>
+            </div>
+        </div>
+
+        <a href="{% url 'events:event_create' %}"
+           class="calendar-btn calendar-btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Adicionar Evento
+        </a>
+
+    </div>
+
+
+    <!-- ESTATÍSTICAS -->
+    <div class="calendar-stats">
+
+        <div class="calendar-stat">
+            <div class="calendar-stat-icon stat-blue">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div>
+                <strong>{{ total_events }}</strong>
+                <span>Total de Eventos</span>
+            </div>
+        </div>
+
+        <div class="calendar-stat">
+            <div class="calendar-stat-icon stat-green">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <div>
+                <strong>{{ events_this_month }}</strong>
+                <span>Eventos deste Mês</span>
+            </div>
+        </div>
+
+        <div class="calendar-stat">
+            <div class="calendar-stat-icon stat-orange">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+
+            <div>
+                <strong>{{ locations_count }}</strong>
+                <span>Localizações</span>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="calendar-layout">
+
+        <!-- CALENDÁRIO -->
+        <div class="calendar-panel">
+
+            <div class="calendar-toolbar">
+
+                <h4 class="calendar-month-title">
+                    {{ month_label }}
+                </h4>
+
+                <div class="calendar-toolbar-actions">
+
+                    <a href="?month={{ previous_month }}"
+                       class="calendar-btn"
+                       title="Mês anterior">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+
+                    <a href="?month={{ current_month }}"
+                       class="calendar-btn">
+                        Hoje
+                    </a>
+
+                    <a href="?month={{ next_month }}"
+                       class="calendar-btn"
+                       title="Próximo mês">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+
+                    <span class="calendar-view-label">
+                        <i class="bi bi-calendar3"></i>
+                        Mensal
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="calendar-grid">
+
+                <!-- DIAS DA SEMANA -->
+                <div class="calendar-weekday">Segunda</div>
+                <div class="calendar-weekday">Terça</div>
+                <div class="calendar-weekday">Quarta</div>
+                <div class="calendar-weekday">Quinta</div>
+                <div class="calendar-weekday">Sexta</div>
+                <div class="calendar-weekday">Sábado</div>
+                <div class="calendar-weekday">Domingo</div>
+
+
+                <!-- DIAS DO CALENDÁRIO -->
+                {% for week in weeks %}
+
+                    {% for day in week %}
+
+                        <div class="calendar-day
+                            {% if not day.in_month %}calendar-day-outside{% endif %}
+                            {% if day.is_today %}calendar-day-today{% endif %}">
+
+                            <div class="calendar-day-number">
+                                {{ day.day_number }}
+                            </div>
+
+                            {% for event in day.events %}
+
+                                <a href="{% url 'events:event_detail' event.pk %}"
+                                   class="calendar-event
+                                   {% if event.status == 'Completed' %}
+                                       event-completed
+                                   {% elif event.status == 'Ongoing' %}
+                                       event-ongoing
+                                   {% elif event.status == 'Cancelled' %}
+                                       event-cancelled
+                                   {% else %}
+                                       event-upcoming
+                                   {% endif %}"
+                                   title="{{ event.title }}">
+
+                                    {% if event.start_time %}
+                                        <span class="calendar-event-time">
+                                            {{ event.start_time|time:"H:i" }}
+                                        </span>
+                                    {% endif %}
+
+                                    <span class="calendar-event-title">
+                                        {{ event.title }}
+                                    </span>
+
+                                    {% if event.location %}
+                                        <span class="calendar-event-location">
+                                            <i class="bi bi-geo-alt"></i>
+                                            {{ event.location }}
+                                        </span>
+                                    {% endif %}
+
+                                </a>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- LEGENDA DAS CORES -->
+            <div class="calendar-legend">
+
+                <div class="legend-item">
+                    <span class="legend-color legend-blue"></span>
+                    Planeado
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-color legend-orange"></span>
+                    Em Curso
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-color legend-green"></span>
+                    Concluído
+                </div>
+
+                <div class="legend-item">
+                    <span class="legend-color legend-red"></span>
+                    Cancelado
+                </div>
+
+            </div>
+
+
+            {% if not events_this_month %}
+                <div class="calendar-no-events">
+                    <i class="bi bi-calendar-x"></i>
+                    Não existem eventos registados neste mês.
+                    <br>
+                    <a href="{% url 'events:event_create' %}">
+                        + Criar Novo Evento
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-- BARRA LATERAL -->
+        <div class="calendar-sidebar">
+
+            <!-- PRÓXIMOS EVENTOS -->
+            <div class="calendar-side-card">
+
+                <div class="calendar-side-title">
+                    <h5>
+                        <i class="bi bi-calendar2-week"></i>
+                        Próximos Eventos
+                    </h5>
+
+                    <a href="{% url 'events:event_list' %}">
+                        Ver Lista
+                    </a>
+                </div>
+
+                {% for event in upcoming_events %}
+
+                    <div class="upcoming-event">
+
+                        <div class="upcoming-date">
+                            <strong>
+                                {{ event.event_date|date:"d" }}
+                            </strong>
+
+                            <span>
+                                {{ event.event_date|date:"M" }}
+                            </span>
+                        </div>
+
+                        <div class="upcoming-info">
+
+                            <a href="{% url 'events:event_detail' event.pk %}">
+                                {{ event.title }}
+                            </a>
+
+                            <p>
+                                {% if event.start_time %}
+                                    <i class="bi bi-clock"></i>
+                                    {{ event.start_time|time:"H:i" }}
+                                {% endif %}
+                            </p>
+
+                            {% if event.location %}
+                                <p>
+                                    <i class="bi bi-geo-alt"></i>
+                                    {{ event.location }}
+                                </p>
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p class="text-muted small">
+                        Não existem eventos próximos.
+                    </p>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- AÇÕES RÁPIDAS -->
+            <div class="calendar-side-card">
+
+                <div class="calendar-side-title">
+                    <h5>
+                        <i class="bi bi-lightning-charge"></i>
+                        Ações Rápidas
+                    </h5>
+                </div>
+
+                <a href="{% url 'events:event_create' %}"
+                   class="calendar-quick-action action-green">
+                    <i class="bi bi-plus-circle"></i>
+                    Adicionar Novo Evento
+                </a>
+
+                <a href="{% url 'events:event_list' %}"
+                   class="calendar-quick-action action-blue">
+                    <i class="bi bi-list-ul"></i>
+                    Ver Todos os Eventos
+                </a>
+
+                <a href="?month={{ current_month }}"
+                   class="calendar-quick-action action-orange">
+                    <i class="bi bi-calendar-check"></i>
+                    Voltar para Hoje
+                </a>
+
+                <a href="{% url 'events:activity_list' %}"
+                   class="calendar-quick-action action-purple">
+                    <i class="bi bi-people"></i>
+                    Ver Atividades
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RODAPÉ -->
+    <div class="calendar-footer">
+        <span>
+            <i class="bi bi-shield-check"></i>
+            OJETIL — Sistema de Gestão de Eventos
+        </span>
+
+        <span>
+            <i class="bi bi-calendar3"></i>
+            {{ month_label }}
+        </span>
+    </div>
+
+</div>
+
+{% endblock %}
+```

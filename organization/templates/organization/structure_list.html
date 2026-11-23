@@ -1,0 +1,441 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<style>
+    .org-page {
+        padding: 24px;
+        background: #f4f6fa;
+        min-height: 85vh;
+    }
+
+    /* Header */
+    .org-header {
+        background: #fff;
+        padding: 22px 25px;
+        border-radius: 12px;
+        border: 1px solid #e8edf5;
+        margin-bottom: 22px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .org-header h2 {
+        font-size: 23px;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin-bottom: 6px;
+    }
+
+    .org-header p {
+        color: #7b8794;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    /* Navigation Tabs */
+    .o-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+        background: #fff;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #e8edf5;
+    }
+
+    .o-tabs a {
+        text-decoration: none;
+        color: #64748b;
+        padding: 10px 15px;
+        border-radius: 7px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    .o-tabs a:hover {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .o-tabs a.on {
+        background: #2563eb;
+        color: #fff;
+    }
+
+    /* Statistics */
+    .org-stat {
+        background: #fff;
+        border: 1px solid #e8edf5;
+        border-radius: 10px;
+        padding: 18px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.03);
+    }
+
+    .org-stat-icon {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 21px;
+    }
+
+    .org-stat h4 {
+        font-size: 23px;
+        font-weight: 700;
+        margin: 0;
+        color: #26364a;
+    }
+
+    .org-stat small {
+        color: #7b8794;
+        font-size: 12px;
+    }
+
+    /* Main Panel */
+    .o-panel {
+        background: #fff;
+        border-radius: 12px;
+        border: 1px solid #e8edf5;
+        box-shadow: 0 3px 12px rgba(0,0,0,.04);
+        overflow: hidden;
+    }
+
+    .o-panel-header {
+        padding: 18px 22px;
+        border-bottom: 1px solid #edf0f5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .o-panel-header h5 {
+        margin: 0;
+        font-weight: 700;
+        color: #26364a;
+        font-size: 16px;
+    }
+
+    /* Table */
+    .o-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        margin: 0;
+    }
+
+    .o-tbl thead th {
+        background: #f8fafc;
+        color: #64748b;
+        padding: 15px 16px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        white-space: nowrap;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+    .o-tbl tbody td {
+        padding: 15px 16px;
+        font-size: 13px;
+        color: #475569;
+        border-bottom: 1px solid #edf0f5;
+        vertical-align: middle;
+    }
+
+    .o-tbl tbody tr:hover {
+        background: #f8faff;
+    }
+
+    .o-tbl tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .position-name {
+        font-weight: 700;
+        color: #26364a;
+    }
+
+    .position-color {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .o-badge {
+        display: inline-block;
+        padding: 6px 11px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .b-active {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .b-inactive {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .o-empty {
+        padding: 45px 15px !important;
+        text-align: center;
+        color: #94a3b8 !important;
+    }
+
+    .o-footer {
+        padding: 15px 22px;
+        background: #fafbfc;
+        border-top: 1px solid #edf0f5;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    @media (max-width: 768px) {
+        .org-page {
+            padding: 12px;
+        }
+
+        .org-header {
+            padding: 17px;
+        }
+
+        .org-header h2 {
+            font-size: 19px;
+        }
+
+        .o-tabs {
+            gap: 5px;
+        }
+
+        .o-tabs a {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="org-page">
+
+    <!-- Header -->
+    <div class="org-header">
+        <div>
+            <h2>
+                <i class="bi bi-diagram-3-fill text-primary me-2"></i>
+                Lista da Estrutura
+            </h2>
+            <p>
+                Lista de todos os cargos e unidades da estrutura organizacional.
+            </p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="o-tabs">
+        <a href="{% url 'organization:structure' %}">
+            <i class="bi bi-diagram-3 me-1"></i>
+            Organograma
+        </a>
+
+        <a href="{% url 'organization:structure_list' %}" class="on">
+            <i class="bi bi-list-ul me-1"></i>
+            Lista da Estrutura
+        </a>
+
+        <a href="{% url 'organization:positions' %}">
+            <i class="bi bi-person-badge me-1"></i>
+            Cargos
+        </a>
+
+        <a href="{% url 'organization:committees' %}">
+            <i class="bi bi-people me-1"></i>
+            Comissões
+        </a>
+
+        <a href="{% url 'organization:departments' %}">
+            <i class="bi bi-building me-1"></i>
+            Departamentos
+        </a>
+
+        <a href="{% url 'organization:history' %}">
+            <i class="bi bi-clock-history me-1"></i>
+            Histórico
+        </a>
+    </div>
+
+    <!-- Statistics -->
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6">
+            <div class="org-stat">
+                <div class="org-stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div>
+                    <small>Total de Unidades</small>
+                    <h4>{{ units.count }}</h4>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="org-stat">
+                <div class="org-stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+                <div>
+                    <small>Total de Cargos</small>
+                    <h4>{{ positions|length }}</h4>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Structure Table -->
+    <div class="o-panel">
+
+        <div class="o-panel-header">
+            <h5>
+                <i class="bi bi-list-check text-primary me-2"></i>
+                Dados da Estrutura Organizacional
+            </h5>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="o-tbl">
+
+                <thead>
+                    <tr>
+                        <th style="width: 65px;">N.º</th>
+                        <th>Cargo</th>
+                        <th>Responsável</th>
+                        <th>Unidade</th>
+                        <th>Cargo Superior</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for p in positions %}
+
+                    <tr>
+
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+
+                        <td>
+                            <span class="position-color"
+                                  style="background: {{ p.color }};">
+                            </span>
+
+                            <span class="position-name">
+                                {{ p.title }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if p.person_name %}
+                                <i class="bi bi-person text-muted me-1"></i>
+                                {{ p.person_name }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if p.unit %}
+                                <i class="bi bi-building text-muted me-1"></i>
+                                {{ p.unit.name }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if p.parent %}
+                                {{ p.parent.title }}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if p.is_active %}
+                                <span class="o-badge b-active">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    Ativo
+                                </span>
+                            {% else %}
+                                <span class="o-badge b-inactive">
+                                    <i class="bi bi-x-circle-fill me-1"></i>
+                                    Inativo
+                                </span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="6" class="o-empty">
+                            <i class="bi bi-folder2-open fs-1 d-block mb-2"></i>
+
+                            <h6 class="fw-bold">
+                                Ainda não existem dados
+                            </h6>
+
+                            <small>
+                                Os cargos da estrutura organizacional serão apresentados aqui.
+                            </small>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="o-footer">
+            <span>
+                <i class="bi bi-building me-1"></i>
+                Total de Unidades: <strong>{{ units.count }}</strong>
+            </span>
+
+            <span>
+                <i class="bi bi-person-badge me-1"></i>
+                Total de Cargos: <strong>{{ positions|length }}</strong>
+            </span>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

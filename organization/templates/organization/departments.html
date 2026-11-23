@@ -1,0 +1,290 @@
+
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<style>
+/* ===================== ESTILO DA PÁGINA DE DEPARTAMENTOS ===================== */
+.dep-page { font-size:13px; color:#1f2a44; }
+.dep-page *, .dep-page *::before, .dep-page *::after { box-sizing:border-box; }
+.dep-page a { text-decoration:none; }
+.dep-page .dp-i { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+/* ---------- Cabeçalho ---------- */
+.dep-page .dp-title { display:flex; gap:12px; align-items:flex-start; margin-bottom:16px; }
+.dep-page .dp-logo { width:46px; height:46px; border-radius:10px; background:#e3edff; color:#1764ed; display:flex; align-items:center; justify-content:center; }
+.dep-page .dp-logo .dp-i { width:26px; height:26px; }
+.dep-page .dp-title h2 { margin:0; font-size:21px; color:#0b2a5b; }
+.dep-page .dp-title p { margin:1px 0 0; color:#51607f; font-size:12.5px; }
+.dep-page .dp-crumb { font-size:11.5px; color:#7a88a6; margin-top:2px; }
+.dep-page .dp-crumb a { color:#1764ed; }
+
+/* ---------- Cartões de estatísticas ---------- */
+.dep-page .dp-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:18px; }
+.dep-page .dp-stat { display:flex; align-items:center; gap:14px; padding:14px 16px; border-radius:10px; border:1px solid; }
+.dep-page .dp-sico { width:42px; height:42px; border-radius:10px; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 3px rgba(20,40,90,.08); }
+.dep-page .dp-sico .dp-i { width:22px; height:22px; }
+.dep-page .dp-stat b { display:block; font-size:24px; line-height:1.1; color:#0b2a5b; }
+.dep-page .dp-stat .lb { font-size:12.5px; color:#44526f; }
+.dep-page .s-blue { background:#e8f0ff; border-color:#c9dbff; } .dep-page .s-blue .dp-sico { color:#1764ed; }
+.dep-page .s-green { background:#e6f6ec; border-color:#bfe6cd; } .dep-page .s-green .dp-sico { color:#1f9d55; }
+.dep-page .s-orange { background:#fff3e0; border-color:#f6d9a8; } .dep-page .s-orange .dp-sico { color:#c77700; }
+.dep-page .s-purple { background:#f0e9ff; border-color:#d9c8ff; } .dep-page .s-purple .dp-sico { color:#6d28d9; }
+
+/* ---------- Cartão e barra de ferramentas ---------- */
+.dep-page .dp-card { background:#fff; border:1px solid #d9e2f2; border-radius:10px; padding:14px 14px 12px; }
+.dep-page .dp-tools { display:flex; justify-content:flex-end; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.dep-page .dp-search { display:flex; }
+.dep-page .dp-search input { width:210px; border:1px solid #cdd8ee; border-right:0; border-radius:6px 0 0 6px; padding:8px 10px; font-size:13px; outline:none; background:#fff; }
+.dep-page .dp-search input:focus { border-color:#1764ed; }
+.dep-page .dp-search button { border:0; background:#1764ed; color:#fff; border-radius:0 6px 6px 0; padding:0 12px; cursor:pointer; display:flex; align-items:center; }
+.dep-page .dp-add { display:inline-flex; align-items:center; gap:6px; background:#187a45; color:#fff; border-radius:6px; padding:8px 14px; font-size:13px; font-weight:600; }
+.dep-page .dp-add:hover { background:#126237; color:#fff; }
+
+/* ---------- Tabela ---------- */
+.dep-page .dp-wrap { overflow-x:auto; }
+.dep-page .dp-tbl { width:100%; border-collapse:collapse; }
+.dep-page .dp-tbl th { background:#f3f6fc; color:#2c3b5e; font-size:11.5px; font-weight:700; text-align:left; padding:10px; border-bottom:1px solid #e1e8f5; white-space:nowrap; }
+.dep-page .dp-tbl td { padding:10px; border-bottom:1px solid #eef2fa; vertical-align:middle; font-size:12.5px; }
+.dep-page .dp-tbl tbody tr:hover td { background:#f8faff; }
+.dep-page .dp-tbl .no { width:44px; color:#51607f; }
+.dep-page .dp-tbl .c { text-align:center; }
+.dep-page .dp-name { display:flex; align-items:center; gap:10px; font-weight:600; color:#12203f; min-width:190px; }
+.dep-page .dp-name .dp-di { width:30px; height:30px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.dep-page .dp-name .dp-di .dp-i { width:26px; height:26px; }
+.dep-page .ic-red { color:#d63031; } .dep-page .ic-green { color:#16a34a; }
+.dep-page .ic-purple { color:#7c3aed; } .dep-page .ic-orange { color:#d97706; }
+.dep-page .dp-desc { color:#44526f; max-width:300px; line-height:1.35; }
+.dep-page .dp-empty { text-align:center; color:#7a88a6; padding:28px !important; }
+
+/* ---------- Estado ---------- */
+.dep-page .dp-status { display:inline-flex; align-items:center; gap:6px; padding:4px 16px; border-radius:20px; font-size:12px; font-weight:600; }
+.dep-page .dp-status::before { content:""; width:7px; height:7px; border-radius:50%; background:currentColor; }
+.dep-page .st-on { background:#d9f5e5; color:#17803d; }
+.dep-page .st-off { background:#ececec; color:#6b6b6b; }
+
+/* ---------- Ações ---------- */
+.dep-page .dp-act { white-space:nowrap; text-align:right; }
+.dep-page .dp-ab { display:inline-flex; align-items:center; justify-content:center; width:32px; height:30px; border-radius:6px; color:#fff; margin-left:5px; }
+.dep-page .dp-ab .dp-i { width:14px; height:14px; }
+.dep-page .dp-ab.view, .dep-page .dp-ab.edit { background:#1764ed; }
+.dep-page .dp-ab.view:hover, .dep-page .dp-ab.edit:hover { background:#0f4fc4; }
+.dep-page .dp-ab.del { background:#e03131; } .dep-page .dp-ab.del:hover { background:#bf2020; }
+
+/* ---------- Rodapé ---------- */
+.dep-page .dp-foot { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:12px; color:#51607f; font-size:12px; }
+.dep-page .dp-pager { display:flex; gap:4px; }
+.dep-page .dp-pager span { min-width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid #d9e2f2; border-radius:6px; background:#fff; color:#7a88a6; }
+.dep-page .dp-pager span.cur { background:#1764ed; border-color:#1764ed; color:#fff; font-weight:600; }
+</style>
+
+<!-- CONJUNTO DE ÍCONES -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="dp-building" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2"/></symbol>
+    <symbol id="dp-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.8 4.5 4.5"/></symbol>
+    <symbol id="dp-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></symbol>
+    <symbol id="dp-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></symbol>
+    <symbol id="dp-book" viewBox="0 0 24 24"><path d="M4 4h6a2 2 0 012 2v14a2 2 0 00-2-2H4z"/><path d="M20 4h-6a2 2 0 00-2 2v14a2 2 0 012-2h6z"/></symbol>
+    <symbol id="dp-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></symbol>
+    <symbol id="dp-leaf" viewBox="0 0 24 24"><path d="M5 19c0-8 5-14 15-14 0 10-6 15-14 15"/><path d="M5 19c3-4 6-7 10-9"/></symbol>
+    <symbol id="dp-mega" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 001 1h2l7 4V6L6 10H4a1 1 0 00-1 1z"/><path d="M17 8a5 5 0 010 8"/></symbol>
+    <symbol id="dp-laptop" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></symbol>
+    <symbol id="dp-eye" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="dp-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></symbol>
+    <symbol id="dp-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></symbol>
+    <symbol id="dp-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="dp-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</svg>
+
+<div class="dep-page">
+
+    <!-- CABEÇALHO -->
+    <div class="dp-title">
+        <div class="dp-logo">
+            <svg class="dp-i"><use href="#dp-building"/></svg>
+        </div>
+        <div>
+            <h2>Departamentos</h2>
+            <p>Gerir os departamentos, as respetivas funções e atividades da OJETIL.</p>
+            <div class="dp-crumb">
+                <a href="#">Painel de Controlo</a> &gt; Departamentos
+            </div>
+        </div>
+    </div>
+
+    <!-- CARTÕES DE ESTATÍSTICAS -->
+    <div class="dp-stats">
+
+        <div class="dp-stat s-blue">
+            <div class="dp-sico">
+                <svg class="dp-i"><use href="#dp-building"/></svg>
+            </div>
+            <div>
+                <b>{{ total_departments }}</b>
+                <span class="lb">Total de Departamentos</span>
+            </div>
+        </div>
+
+        <div class="dp-stat s-green">
+            <div class="dp-sico">
+                <svg class="dp-i"><use href="#dp-users"/></svg>
+            </div>
+            <div>
+                <b id="dpTotalMembers">0</b>
+                <span class="lb">Total de Membros</span>
+            </div>
+        </div>
+
+        <div class="dp-stat s-orange">
+            <div class="dp-sico">
+                <svg class="dp-i"><use href="#dp-gear"/></svg>
+            </div>
+            <div>
+                <b>{{ ongoing_projects|default:"0" }}</b>
+                <span class="lb">Projetos em Curso</span>
+            </div>
+        </div>
+
+        <div class="dp-stat s-purple">
+            <div class="dp-sico">
+                <svg class="dp-i"><use href="#dp-check"/></svg>
+            </div>
+            <div>
+                <b>{{ active_departments }}</b>
+                <span class="lb">Departamentos Ativos</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CARTÃO DA TABELA -->
+    <div class="dp-card">
+
+        <div class="dp-tools">
+            <div class="dp-search">
+                <input type="text" id="dpSearch" placeholder="Pesquisar departamento...">
+                <button type="button" aria-label="Pesquisar">
+                    <svg class="dp-i"><use href="#dp-search"/></svg>
+                </button>
+            </div>
+
+            <a href="{% url 'organization:department_add' %}" class="dp-add">
+                <svg class="dp-i"><use href="#dp-plus"/></svg>
+                Adicionar Departamento
+            </a>
+        </div>
+
+        <div class="dp-wrap">
+            <table class="dp-tbl" id="dpTbl">
+                <thead>
+                    <tr>
+                        <th class="no">N.º</th>
+                        <th>Nome do Departamento</th>
+                        <th>Descrição</th>
+                        <th>Responsável do Departamento</th>
+                        <th class="c">Membros</th>
+                        <th class="c">Estado</th>
+                        <th class="c">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for d in departments %}
+                    <tr>
+                        <td class="no">{{ forloop.counter }}</td>
+
+                        <td>
+                            <div class="dp-name">
+                                <span class="dp-di {% cycle 'ic-red' 'ic-green' 'ic-red' 'ic-green' 'ic-purple' 'ic-orange' %}">
+                                    <svg class="dp-i">
+                                        <use href="#dp-{% cycle 'book' 'users' 'ball' 'leaf' 'mega' 'laptop' %}"/>
+                                    </svg>
+                                </span>
+                                <span>{{ d.name }}</span>
+                            </div>
+                        </td>
+
+                        <td class="dp-desc">{{ d.description|truncatechars:90 }}</td>
+
+                        <td>
+                            {% with p=d.positions.first %}
+                                {{ p.person_name|default:"-" }}
+                            {% endwith %}
+                        </td>
+
+                        <td class="c dp-mem">{{ d.positions.count }}</td>
+
+                        <td class="c">
+                            {% if d.is_active %}
+                                <span class="dp-status st-on">Ativo</span>
+                            {% else %}
+                                <span class="dp-status st-off">Inativo</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="dp-act">
+                            <a href="{% url 'organization:department_detail' pk=d.pk %}" class="dp-ab view" title="Ver detalhes">
+                                <svg class="dp-i"><use href="#dp-eye"/></svg>
+                            </a>
+
+                            <a href="{% url 'organization:department_edit' d.pk %}" class="dp-ab edit" title="Editar">
+                                <svg class="dp-i"><use href="#dp-edit"/></svg>
+                            </a>
+
+                            <a href="{% url 'organization:department_delete' d.pk %}" class="dp-ab del" title="Eliminar">
+                                <svg class="dp-i"><use href="#dp-trash"/></svg>
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="dp-empty">
+                            Ainda não existem departamentos registados. Clique em "Adicionar Departamento".
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dp-foot">
+            <div>
+                A mostrar {% if total_departments %}1{% else %}0{% endif %}
+                a {{ total_departments }} de {{ total_departments }} departamentos
+            </div>
+
+            <div class="dp-pager">
+                <span>&lsaquo;</span>
+                <span class="cur">1</span>
+                <span>&rsaquo;</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+// Pesquisa na tabela
+document.getElementById('dpSearch').addEventListener('input', function (e) {
+    var q = e.target.value.toLowerCase();
+
+    document.querySelectorAll('#dpTbl tbody tr').forEach(function (tr) {
+        tr.style.display = tr.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+    });
+});
+
+// Total de membros = soma da coluna Membros
+(function () {
+    var total = 0;
+
+    document.querySelectorAll('#dpTbl .dp-mem').forEach(function (td) {
+        total += parseInt(td.textContent, 10) || 0;
+    });
+
+    document.getElementById('dpTotalMembers').textContent = total;
+})();
+</script>
+
+{% endblock %}

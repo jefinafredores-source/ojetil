@@ -1,0 +1,570 @@
+
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+.category-page {
+    padding: 20px;
+    background: #f4f7fc;
+    min-height: 100vh;
+    color: #173568;
+    font-size: 13px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.category-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-heading-icon {
+    width: 45px;
+    height: 45px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #e3edff;
+    color: #1764ed;
+    font-size: 23px;
+}
+
+.category-heading h3 {
+    margin: 0;
+    color: #143779;
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.category-heading p {
+    margin: 4px 0 0;
+    color: #7888a3;
+    font-size: 12px;
+}
+
+.category-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 13px;
+    border: 0;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.category-btn-primary {
+    background: #1764ed;
+    color: white;
+}
+
+.category-btn-primary:hover {
+    background: #0e4fc6;
+    color: white;
+}
+
+.category-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.category-stat {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: white;
+    border: 1px solid #e5ebf5;
+    border-radius: 9px;
+    box-shadow: 0 2px 8px #193c7210;
+}
+
+.category-stat-icon {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    font-size: 21px;
+}
+
+.category-stat strong {
+    display: block;
+    color: #163a7b;
+    font-size: 23px;
+    line-height: 1.2;
+}
+
+.category-stat small {
+    display: block;
+    margin-top: 4px;
+    color: #7a8aa5;
+    font-size: 11px;
+}
+
+.cat-blue { background: #e5edff; color: #1764ed; }
+.cat-green { background: #dff8ec; color: #079764; }
+.cat-red { background: #ffe5e8; color: #df3653; }
+.cat-purple { background: #efe5ff; color: #8b45d9; }
+
+.category-panel {
+    background: white;
+    border: 1px solid #e3eaf5;
+    border-radius: 9px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px #193c7210;
+}
+
+.category-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px;
+    border-bottom: 1px solid #e8edf5;
+}
+
+.category-panel-header h5 {
+    margin: 0;
+    color: #193a72;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.category-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.category-filters input,
+.category-filters select {
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid #dce5f2;
+    border-radius: 5px;
+    outline: none;
+    background: white;
+    color: #334766;
+    font-size: 12px;
+}
+
+.category-filters input:focus,
+.category-filters select:focus {
+    border-color: #1764ed;
+}
+
+.category-table-wrap {
+    overflow-x: auto;
+}
+
+.category-table {
+    width: 100%;
+    min-width: 750px;
+    border-collapse: collapse;
+}
+
+.category-table th {
+    padding: 13px 14px;
+    background: #f5f8fd;
+    border-bottom: 1px solid #e5ebf5;
+    color: #667894;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.category-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid #edf1f7;
+    vertical-align: middle;
+    color: #344969;
+}
+
+.category-table tbody tr:hover {
+    background: #f8faff;
+}
+
+.category-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    color: #203e70;
+}
+
+.category-color {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.category-description {
+    max-width: 220px;
+    color: #7888a1;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.category-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 5px 9px;
+    border-radius: 15px;
+    background: #e8efff;
+    color: #2459bb;
+    font-weight: 800;
+}
+
+.category-status {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 15px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.status-active {
+    background: #dff8ec;
+    color: #078252;
+}
+
+.status-inactive {
+    background: #ffe5e8;
+    color: #ca304b;
+}
+
+.category-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.category-action {
+    width: 30px;
+    height: 30px;
+    display: inline-grid;
+    place-items: center;
+    border: 0;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.category-edit {
+    background: #e4edff;
+    color: #1764ed;
+}
+
+.category-delete {
+    background: #ffe5e8;
+    color: #dc3545;
+}
+
+.category-empty {
+    padding: 40px 15px !important;
+    text-align: center;
+    color: #8593a9 !important;
+}
+
+.category-empty i {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 32px;
+}
+
+.category-footer {
+    padding: 12px 16px;
+    color: #8290a6;
+    font-size: 11px;
+}
+
+.category-message {
+    padding: 11px 14px;
+    margin-bottom: 14px;
+    border-radius: 6px;
+    background: #e4f8ec;
+    color: #087747;
+}
+
+.category-message.error {
+    background: #ffe8e8;
+    color: #b42336;
+}
+
+@media (max-width: 1000px) {
+    .category-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 550px) {
+    .category-page {
+        padding: 10px;
+    }
+
+    .category-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .category-heading h3 {
+        font-size: 18px;
+    }
+}
+</style>
+
+
+<div class="category-page">
+
+    <!-- CABEÇALHO -->
+    <div class="category-header">
+        <div class="category-heading">
+            <div class="category-heading-icon">
+                <i class="bi bi-tags-fill"></i>
+            </div>
+
+            <div>
+                <h3>Gestão de Categorias de Atividades</h3>
+                <p>
+                    Gerir categorias de atividades, descrições,
+                    cores e estados das categorias.
+                </p>
+
+                <small class="text-muted">
+                    Painel &rsaquo; Atividades &rsaquo; Categorias
+                </small>
+            </div>
+        </div>
+
+        <a href="{% url 'events:activity_category_create' %}"
+           class="category-btn category-btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Adicionar Categoria
+        </a>
+    </div>
+
+
+    <!-- MENSAGENS -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="category-message
+                {% if message.tags == 'error' %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+
+    <!-- ESTATÍSTICAS -->
+    <div class="category-stats">
+
+        <div class="category-stat">
+            <div class="category-stat-icon cat-blue">
+                <i class="bi bi-tags"></i>
+            </div>
+            <div>
+                <strong>{{ total_categories }}</strong>
+                <small>Total de Categorias</small>
+            </div>
+        </div>
+
+        <div class="category-stat">
+            <div class="category-stat-icon cat-green">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div>
+                <strong>{{ active_categories }}</strong>
+                <small>Categorias Ativas</small>
+            </div>
+        </div>
+
+        <div class="category-stat">
+            <div class="category-stat-icon cat-red">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div>
+                <strong>{{ inactive_categories }}</strong>
+                <small>Categorias Inativas</small>
+            </div>
+        </div>
+
+        <div class="category-stat">
+            <div class="category-stat-icon cat-purple">
+                <i class="bi bi-people"></i>
+            </div>
+            <div>
+                <strong>{{ total_activities }}</strong>
+                <small>Atividades nos Resultados</small>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- TABELA DE CATEGORIAS -->
+    <div class="category-panel">
+
+        <div class="category-panel-header">
+            <h5>
+                <i class="bi bi-list-ul"></i>
+                Lista de Categorias
+            </h5>
+
+            <form method="get" class="category-filters">
+
+                <input type="search"
+                       name="search"
+                       value="{{ search }}"
+                       placeholder="Pesquisar categorias...">
+
+                <select name="status">
+                    <option value="">Todos os Estados</option>
+                    <option value="active"
+                        {% if selected_status == 'active' %}selected{% endif %}>
+                        Ativas
+                    </option>
+                    <option value="inactive"
+                        {% if selected_status == 'inactive' %}selected{% endif %}>
+                        Inativas
+                    </option>
+                </select>
+
+                <button type="submit"
+                        class="category-btn category-btn-primary">
+                    <i class="bi bi-search"></i>
+                    Filtrar
+                </button>
+
+                <a href="{% url 'events:activity_category_list' %}"
+                   class="category-btn"
+                   style="background:#edf1f7;color:#405574;">
+                    Repor
+                </a>
+            </form>
+        </div>
+
+
+        <div class="category-table-wrap">
+            <table class="category-table">
+                <thead>
+                    <tr>
+                        <th>N.º</th>
+                        <th>Nome da Categoria</th>
+                        <th>Descrição</th>
+                        <th>Atividades</th>
+                        <th>Estado</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for category in categories %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                <div class="category-name">
+                                    <div class="category-color"
+                                         style="background:{{ category.color }}20;
+                                                color:{{ category.color }};">
+                                        <i class="bi bi-tag-fill"></i>
+                                    </div>
+
+                                    {{ category.name }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="category-description">
+                                    {{ category.description|default:"Sem descrição"|truncatechars:85 }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <span class="category-count">
+                                    {{ category.activity_count }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if category.is_active %}
+                                    <span class="category-status status-active">
+                                        Ativa
+                                    </span>
+                                {% else %}
+                                    <span class="category-status status-inactive">
+                                        Inativa
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="category-actions">
+                                    <a href="{% url 'events:activity_category_update' category.pk %}"
+                                       class="category-action category-edit"
+                                       title="Editar Categoria">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <form method="post"
+                                          action="{% url 'events:activity_category_delete' category.pk %}"
+                                          onsubmit="return confirm('Tem a certeza de que deseja eliminar esta categoria?');">
+                                        {% csrf_token %}
+
+                                        <button type="submit"
+                                                class="category-action category-delete"
+                                                title="Eliminar Categoria">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+                    {% empty %}
+                        <tr>
+                            <td colspan="6" class="category-empty">
+                                <i class="bi bi-tags"></i>
+                                Nenhuma categoria encontrada.
+                                <br>
+                                Crie a sua primeira categoria de atividade.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="category-footer">
+            A apresentar {{ categories|length }} categoria(s).
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+

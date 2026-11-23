@@ -1,0 +1,205 @@
+
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div style="padding:25px;">
+
+    <div
+        style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+        "
+    >
+
+        <div>
+
+            <h2>
+                {{ activity.title }}
+            </h2>
+
+            <p style="color:#777;">
+                Detalhes da Atividade
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <a
+                href="{% url 'events:activity_update' activity.pk %}"
+                class="btn btn-warning"
+            >
+
+                <i class="fas fa-edit"></i>
+
+                Editar
+
+            </a>
+
+
+            <a
+                href="{% url 'events:activity_list' %}"
+                class="btn btn-secondary"
+            >
+
+                Voltar
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div
+        style="
+        background:white;
+        padding:25px;
+        border-radius:8px;
+        "
+    >
+
+
+        {% if activity.image %}
+
+            <img
+                src="{{ activity.image.url }}"
+                style="
+                width:50%;
+                max-height:500px;
+                object-fit:cover;
+                border-radius:8px;
+                margin-bottom:10px;
+                "
+            >
+
+        {% endif %}
+
+
+        <h3>
+            {{ activity.title }}
+        </h3>
+
+
+        <p>
+            {{ activity.description }}
+        </p>
+
+
+        <hr>
+
+
+        <p>
+
+            <strong>
+                <i class="fas fa-calendar"></i>
+                Data:
+            </strong>
+
+            {{ activity.activity_date|date:"d F Y" }}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                <i class="fas fa-clock"></i>
+                Horário:
+            </strong>
+
+            {{ activity.start_time|time:"H:i" }}
+
+            {% if activity.end_time %}
+
+                -
+                {{ activity.end_time|time:"H:i" }}
+
+            {% endif %}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                <i class="fas fa-map-marker-alt"></i>
+                Local:
+            </strong>
+
+            {{ activity.location }}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Categoria:
+            </strong>
+
+            {% if activity.category %}
+
+                {{ activity.category.name }}
+
+            {% else %}
+
+                -
+
+            {% endif %}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Estado:
+            </strong>
+
+            {{ activity.status }}
+
+        </p>
+
+
+        <p>
+
+            <strong>
+                Participantes:
+            </strong>
+
+            {{ activity.participants }}
+
+            /
+
+            {{ activity.max_participants }}
+
+        </p>
+
+
+        {% if activity.event %}
+
+        <p>
+
+            <strong>
+                Evento:
+            </strong>
+
+            {{ activity.event.title }}
+
+        </p>
+
+        {% endif %}
+
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+

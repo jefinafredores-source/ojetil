@@ -1,0 +1,782 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cartões de Identificação - OJETIL</title>
+
+    <style>
+        @page {
+            size: 85.6mm 53.98mm;
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 25px;
+            background: #eef0f3;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* BOTÕES */
+        .print-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .print-actions button,
+        .print-actions a {
+            border: 0;
+            border-radius: 6px;
+            padding: 11px 22px;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .print-button {
+            background: #0d6efd;
+        }
+
+        .print-button:hover {
+            background: #0b5ed7;
+        }
+
+        .back-button {
+            background: #6c757d;
+        }
+
+        .back-button:hover {
+            background: #565e64;
+        }
+
+        /* CONTAINER */
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* CARTÃO */
+        .membership-card {
+            width: 85.6mm;
+            height: 53.98mm;
+            position: relative;
+            overflow: hidden;
+            flex: 0 0 85.6mm;
+
+            background:
+                radial-gradient(
+                    circle at 85% 15%,
+                    rgba(215,25,32,.08),
+                    transparent 32%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #ffffff 70%,
+                    #f7f8fa 100%
+                );
+
+            border: 1px solid #cfd3d7;
+            border-radius: 3mm;
+            box-shadow: 0 5px 15px rgba(0,0,0,.15);
+            color: #222;
+        }
+
+        /* MARCA D'ÁGUA */
+        .membership-card::before {
+            content: "OJETIL";
+            position: absolute;
+            left: 25mm;
+            top: 20mm;
+            font-size: 18mm;
+            font-weight: 900;
+            letter-spacing: 1mm;
+            color: rgba(13,110,253,.035);
+            transform: rotate(-18deg);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* CABEÇALHO */
+        .card-header {
+            position: relative;
+            width: 100%;
+            height: 13mm;
+            display: flex;
+            align-items: center;
+            padding: 1.5mm 2.5mm;
+            background: rgba(255,255,255,.97);
+            border-bottom: 1px solid #e1e4e7;
+            z-index: 10;
+        }
+
+        .card-logo {
+            width: 8.5mm;
+            height: 8.5mm;
+            object-fit: contain;
+            margin-right: 1.8mm;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: white;
+        }
+
+        .card-header-text {
+            position: relative;
+            z-index: 12;
+            line-height: 1.15;
+            width: 48mm;
+            min-width: 0;
+        }
+
+        .card-org-short {
+            display: block;
+            font-size: 12pt;
+            font-weight: 900;
+            letter-spacing: .5px;
+            color: #1d2a35;
+        }
+
+        .card-org-full {
+            display: block;
+            max-width: 47mm;
+            margin-top: .7mm;
+            font-size: 4.5pt;
+            line-height: 1.3;
+            color: #59636d;
+            text-transform: uppercase;
+        }
+
+        /* ======================================
+           BANDEIRA OJETIL - VETOR SVG EXATO
+        ====================================== */
+        .card-flag {
+            position: absolute;
+            top: 1mm;
+            right: 2mm;
+            width: 18.5mm;
+            height: 11mm;
+            overflow: hidden;
+            border: 0.2mm solid #b5b5b5;
+            border-radius: 0.5mm;
+            z-index: 15;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,.15);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .card-flag svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* TÍTULO DO CARTÃO */
+        .card-membership-label {
+            position: absolute;
+            left: 12.8mm;
+            top: 13.2mm;
+            display: inline-block;
+            padding: .4mm 1.8mm;
+            font-size: 4pt;
+            font-weight: 900;
+            letter-spacing: .5px;
+            color: #0d6efd;
+            background: #eaf2ff;
+            border-radius: 1mm;
+            border-left: 1mm solid #0d6efd;
+            text-transform: uppercase;
+            line-height: 1.2;
+            z-index: 16;
+        }
+
+        /* CONTEÚDO */
+        .card-content {
+            position: absolute;
+            top: 17mm;
+            left: 2.8mm;
+            right: 2.8mm;
+            bottom: 8.5mm;
+
+            display: flex;
+            align-items: flex-start;
+            gap: 2mm;
+
+            z-index: 5;
+        }
+
+        /* FOTOGRAFIA */
+        .card-photo,
+        .card-photo-empty {
+            width: 15mm;
+            height: 19mm;
+            flex: 0 0 15mm;
+            margin-top: 1mm;
+            border: 2px solid #fff;
+            outline: 1px solid #c9ced3;
+            border-radius: 1mm;
+        }
+
+        .card-photo {
+            object-fit: cover;
+        }
+
+        .card-photo-empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f1f3f5;
+            color: #adb5bd;
+            font-size: 18pt;
+        }
+
+        /* DADOS DO MEMBRO */
+        .card-details {
+            flex: 1;
+            min-width: 0;
+            padding-top: .5mm;
+        }
+
+        .card-details-title {
+            font-size: 5.2pt;
+            font-weight: 900;
+            letter-spacing: .4px;
+            color: #495057;
+            text-transform: uppercase;
+            margin-bottom: 1.2mm;
+            padding-bottom: .7mm;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .card-row {
+            display: flex;
+            align-items: flex-start;
+            min-height: 3.8mm;
+            margin-bottom: .4mm;
+            line-height: 1.2;
+        }
+
+        .card-label {
+            width: 11mm;
+            flex: 0 0 11mm;
+            font-size: 5pt;
+            font-weight: 800;
+            color: #59636d;
+            text-transform: uppercase;
+            padding-right: .7mm;
+        }
+
+        .card-value {
+            flex: 1;
+            min-width: 0;
+            font-size: 5.3pt;
+            font-weight: 600;
+            color: #252b31;
+            line-height: 1.25;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: normal;
+        }
+
+        .card-id {
+            color: #0d6efd;
+            font-size: 5.8pt;
+            font-weight: 900;
+        }
+
+        .card-name {
+            font-weight: 800;
+        }
+
+        /* QR CODE */
+        .card-qr-wrapper {
+            width: 12mm;
+            flex: 0 0 12mm;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2mm;
+            margin-left: .5mm;
+        }
+
+        .card-qr {
+            width: 11mm;
+            height: 11mm;
+            object-fit: contain;
+            background: white;
+            border: 2px solid white;
+            outline: 1px solid #cfd3d7;
+            padding: .5mm;
+            border-radius: 1mm;
+            display: block;
+        }
+
+        .card-qr-fallback {
+            width: 11mm;
+            height: 11mm;
+            background: white;
+            border: 2px solid white;
+            outline: 1px solid #cfd3d7;
+            padding: .5mm;
+            border-radius: 1mm;
+            display: none;
+        }
+
+        .card-qr-label {
+            margin-top: 1mm;
+            font-size: 3.5pt;
+            font-weight: 800;
+            color: #6c757d;
+            text-align: center;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        /* RODAPÉ */
+        .card-footer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 1.5mm;
+            height: 5.5mm;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 3mm;
+            background: rgba(255,255,255,.98);
+            border-top: 1px solid #e1e4e7;
+            z-index: 20;
+        }
+
+        .card-motto {
+            font-size: 5.5pt;
+            font-weight: 800;
+            font-style: italic;
+            color: #343a40;
+        }
+
+        .card-footer-right {
+            font-size: 4.5pt;
+            font-weight: 700;
+            color: #6c757d;
+            text-transform: uppercase;
+        }
+
+        /* FAIXA DE CORES ORIGINAL */
+        .card-color-strip {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 22mm;
+            height: 1.5mm;
+            display: flex;
+            z-index: 50;
+        }
+
+        .card-color-black,
+        .card-color-red,
+        .card-color-yellow {
+            width: 33.333%;
+        }
+
+        .card-color-black {
+            background: #111;
+        }
+
+        .card-color-red {
+            background: #d71920;
+        }
+
+        .card-color-yellow {
+            background: #f5c400;
+        }
+
+        /* MENSAGEM VAZIA */
+        .empty-message {
+            padding: 20px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        /* IMPRESSÃO */
+        @media print {
+            @page {
+                size: 85.6mm 53.98mm;
+                margin: 0;
+            }
+
+            html,
+            body {
+                width: 85.6mm;
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+
+            .print-actions {
+                display: none !important;
+            }
+
+            .cards-container {
+                display: block;
+                margin: 0;
+                padding: 0;
+            }
+
+            .membership-card {
+                width: 85.6mm;
+                height: 53.98mm;
+                margin: 0;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+
+                break-after: page;
+                page-break-after: always;
+
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .membership-card:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BOTÕES -->
+    <div class="print-actions">
+
+        <button
+            class="print-button"
+            type="button"
+            onclick="window.print()">
+            🖨 Imprimir Cartões
+        </button>
+
+        <a
+            class="back-button"
+            href="{% url 'members:id_cards' %}">
+            Voltar à Lista
+        </a>
+
+    </div>
+
+    <!-- CARTÕES DOS MEMBROS -->
+    <div class="cards-container">
+
+        {% for member in members %}
+
+        <div class="membership-card">
+
+            <!-- CABEÇALHO -->
+            <div class="card-header">
+
+                <img
+                    src="{% static 'main/images/logo.jpeg' %}"
+                    class="card-logo"
+                    alt="Logótipo OJETIL">
+
+                <div class="card-header-text">
+
+                    <span class="card-org-short">
+                        OJETIL
+                    </span>
+
+                    <span class="card-org-full">
+                        Organização da Juventude e dos Estudantes de Timor-Leste
+                    </span>
+
+                </div>
+
+                <!-- BANDEIRA OJETIL (MODELO EXATO SVG) -->
+                <div class="card-flag">
+                    <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <!-- Caminho da curva superior -->
+                            <path id="curveTop-{{ forloop.counter }}" d="M 27,93 Q 52.5,79 78,93" />
+                            <!-- Caminho da curva inferior -->
+                            <path id="curveBottom-{{ forloop.counter }}" d="M 27,174 Q 52.5,187 78,174" />
+                        </defs>
+
+                        <!-- 6 Quadrantes da Bandeira -->
+                        <!-- Esquerda: Preto, Amarelo, Vermelho -->
+                        <rect x="0" y="0" width="105" height="66.67" fill="#050505"/>
+                        <rect x="0" y="66.67" width="105" height="66.67" fill="#fff500"/>
+                        <rect x="0" y="133.33" width="105" height="66.67" fill="#ff1717"/>
+
+                        <!-- Direita: Azul, Branco, Verde -->
+                        <rect x="105" y="0" width="195" height="66.67" fill="#4298ed"/>
+                        <rect x="105" y="66.67" width="195" height="66.67" fill="#ffffff"/>
+                        <rect x="105" y="133.33" width="195" height="66.67" fill="#168b00"/>
+
+                        <!-- Estrela Branca no Quadrante Preto -->
+                        <polygon points="52.5,8 59.5,27 79.5,27 63.5,39 69.5,58 52.5,46.5 35.5,58 41.5,39 25.5,27 45.5,27" fill="#ffffff"/>
+
+                        <!-- Texto OJETIL no Quadrante Branco -->
+                        <text x="202.5" y="114" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="900" fill="#000000" text-anchor="middle" letter-spacing="1">OJETIL</text>
+
+                        <!-- FITA SUPERIOR (SABER PARA SERVIR) -->
+                        <polygon points="27,89 15,96 20,101 14,106 27,102" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                        <polygon points="78,89 90,96 85,101 91,106 78,102" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                        <path d="M 24,87 Q 52.5,72 81,87 L 81,100 Q 52.5,85 24,100 Z" fill="#ffffff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                        <text font-family="Arial, Helvetica, sans-serif" font-size="5.6" font-weight="900" fill="#000000" letter-spacing="0.15">
+                            <textPath href="#curveTop-{{ forloop.counter }}" startOffset="50%" text-anchor="middle">SABER PARA SERVIR</textPath>
+                        </text>
+
+                        <!-- EMBLEMA CENTRAL CRUZADO (ENXADA + LAPIZEIRA) -->
+                        <g>
+                            <path d="M 33,108 Q 56,125 81,148 L 78,151 Q 53,128 30,111 Z" fill="#8b3a2b" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                            <polygon points="35,103 25,115 35,127 42,113" fill="#8e8e8e" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                        </g>
+
+                        <g transform="translate(53, 128) rotate(42)">
+                            <rect x="-4" y="-26" width="8" height="42" rx="1" fill="#707070" stroke="#000" stroke-width="1.3"/>
+                            <path d="M 4,-22 L 7,-22 L 7,-4 L 4,-4" fill="none" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                            <line x1="-4" y1="-14" x2="4" y2="-14" stroke="#000" stroke-width="1.3"/>
+                            <polygon points="-4,16 4,16 1.5,25 -1.5,25" fill="#9e9e9e" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                            <line x1="0" y1="25" x2="0" y2="29" stroke="#000" stroke-width="1.4" stroke-linecap="round"/>
+                        </g>
+
+                        <!-- FITA INFERIOR (PÁTRIA - POVO) -->
+                        <polygon points="27,172 15,165 20,160 14,155 27,159" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                        <polygon points="78,172 90,165 85,160 91,155 78,159" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                        <path d="M 24,162 Q 52.5,176 81,162 L 81,175 Q 52.5,189 24,175 Z" fill="#ffffff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                        <text font-family="Arial, Helvetica, sans-serif" font-size="6.4" font-weight="900" fill="#000000" letter-spacing="0.2">
+                            <textPath href="#curveBottom-{{ forloop.counter }}" startOffset="50%" text-anchor="middle">PÁTRIA - POVO</textPath>
+                        </text>
+                    </svg>
+                </div>
+
+            </div>
+
+            <!-- CONTEÚDO -->
+            <div class="card-content">
+
+                <!-- FOTOGRAFIA -->
+                {% if member.profile_photo %}
+
+                    <img
+                        src="{{ member.profile_photo.url }}"
+                        class="card-photo"
+                        alt="Fotografia de {{ member.full_name }}">
+
+                {% else %}
+
+                    <div class="card-photo-empty">
+                        👤
+                    </div>
+
+                {% endif %}
+
+                <!-- DADOS DO MEMBRO -->
+                <div class="card-details">
+
+                    <!-- NOME -->
+                    <div class="card-row">
+
+                        <div class="card-label">
+                            Nome
+                        </div>
+
+                        <div
+                            class="card-value card-name"
+                            title="{{ member.full_name }}">
+                            {{ member.full_name|default:"-" }}
+                        </div>
+
+                    </div>
+
+                    <!-- ID -->
+                    <div class="card-row">
+
+                        <div class="card-label">
+                            ID
+                        </div>
+
+                        <div class="card-value card-id">
+                            {{ member.member_id_code|default:"-" }}
+                        </div>
+
+                    </div>
+
+                    <!-- CARGO -->
+                    <div class="card-row">
+
+                        <div class="card-label">
+                            Cargo
+                        </div>
+
+                        <div
+                            class="card-value"
+                            title="{{ member.position }}">
+                            {{ member.position|default:"Membro" }}
+                        </div>
+
+                    </div>
+
+                    <!-- MUNICÍPIO -->
+                    <div class="card-row">
+
+                        <div class="card-label">
+                            Município
+                        </div>
+
+                        <div class="card-value">
+                            {{ member.district.name|default:"-" }}
+                        </div>
+
+                    </div>
+
+                    <!-- DATA DE EMISSÃO -->
+                    <div class="card-row">
+
+                        <div class="card-label">
+                            Emissão
+                        </div>
+
+                        <div class="card-value">
+
+                            {% if member.registration_date %}
+                                {{ member.registration_date|date:"d/m/Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- QR CODE (NUNCA DESAPARECE) -->
+                <div class="card-qr-wrapper">
+                    {% with qr_data=member.member_id_code|default:member.full_name|default:"OJETIL" %}
+                        <img
+                            src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&amp;data={{ qr_data|urlencode }}"
+                            class="card-qr"
+                            alt="Código QR {{ qr_data }}"
+                            data-qr-text="{{ qr_data }}"
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block'; drawFallbackQR(this.nextElementSibling, this.dataset.qrText);">
+                        <canvas class="card-qr-fallback" width="120" height="120"></canvas>
+                    {% endwith %}
+
+                    <div class="card-qr-label">
+                        Ler para verificar
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RODAPÉ -->
+            <div class="card-footer">
+
+                <span class="card-motto">
+                    Saber para Servir
+                </span>
+
+                <span class="card-footer-right">
+                    OJETIL • Timor-Leste
+                </span>
+
+            </div>
+
+            <!-- FAIXA DE CORES ORIGINAL -->
+            <div class="card-color-strip">
+
+                <div class="card-color-black"></div>
+                <div class="card-color-yellow"></div>
+                <div class="card-color-red"></div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+            <p class="empty-message">
+                Não existem membros selecionados para impressão.
+            </p>
+
+        {% endfor %}
+
+    </div>
+
+    <script>
+        function drawFallbackQR(canvas, text) {
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
+            const size = canvas.width;
+            const cells = 21;
+            const cellSize = size / cells;
+
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, size, size);
+
+            let hash = 2166136261;
+            const str = String(text || "OJETIL");
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+
+            ctx.fillStyle = "#111111";
+
+            function drawFinder(ox, oy) {
+                ctx.fillRect(ox * cellSize, oy * cellSize, 7 * cellSize, 7 * cellSize);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect((ox + 1) * cellSize, (oy + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+                ctx.fillStyle = "#111111";
+                ctx.fillRect((ox + 2) * cellSize, (oy + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+            }
+
+            drawFinder(0, 0);
+            drawFinder(cells - 7, 0);
+            drawFinder(0, cells - 7);
+
+            for (let r = 0; r < cells; r++) {
+                for (let c = 0; c < cells; c++) {
+                    const inTopLeft = r < 8 && c < 8;
+                    const inTopRight = r < 8 && c >= cells - 8;
+                    const inBottomLeft = r >= cells - 8 && c < 8;
+                    if (inTopLeft || inTopRight || inBottomLeft) continue;
+
+                    const bit = ((hash >>> ((r * cells + c) % 24)) ^ (r * 31 + c * 17)) & 1;
+                    if (bit) {
+                        ctx.fillRect(c * cellSize, r * cellSize, cellSize + 0.3, cellSize + 0.3);
+                    }
+                }
+            }
+        }
+
+        window.addEventListener("beforeprint", function () {
+            const images = Array.from(document.images);
+            images.forEach(function (img) {
+                if (!img.complete) {
+                    console.warn("A imagem ainda está a carregar:", img.src);
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

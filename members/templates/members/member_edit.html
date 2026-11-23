@@ -1,0 +1,52 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold mb-0"><i class="bi bi-pencil-square text-success me-2"></i>Editar Membru: {{ member.full_name }}</h3>
+    {% comment %} <a href="{% url 'members:list' %}" class="btn btn-secondary fw-bold"><i class="bi bi-arrow-left me-1"></i> Kansela</a> {% endcomment %}
+  </div>
+
+  <div class="card border-0 shadow-sm p-4">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Full Name</label>
+          <input type="text" name="full_name" class="form-control" value="{{ member.full_name }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="from-label fw-bold">Codigo</label>
+          <input type="text" name="codigo" class="form-control" value="{{member.codigo}}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Phone Number</label>
+          <input type="text" name="phone_number" class="form-control" value="{{ member.phone_number }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Email</label>
+          <input type="email" name="email" class="form-control" value="{{ member.email|default:'' }}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">National ID / BI</label>
+          <input type="text" name="national_id" class="form-control" value="{{ member.national_id }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Profile Photo (Troka se presiza)</label>
+          <input type="file" name="profile_photo" class="form-control" accept="image/*">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-bold">Supporting Document (Troka se presiza)</label>
+          <input type="file" name="supporting_document" class="form-control">
+        </div>
+      </div>
+
+      <div class="mt-4 text-end">
+        <a href="{% url 'members:list' %}" class="btn btn-secondary me-2">Kansela</a>
+        <button type="submit" class="btn btn-success fw-bold px-4"><i class="bi bi-check-lg me-1"></i> Salva Mudansa</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

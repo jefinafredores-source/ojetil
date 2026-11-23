@@ -1,0 +1,810 @@
+
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+.event-page {
+    padding: 20px;
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* CABEÇALHO */
+.breadcrumb {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+.breadcrumb a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 12px;
+}
+.event-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.event-header p {
+    margin: 3px 0 0;
+    color: #6c757d;
+    font-size: 13px;
+}
+.btn-create {
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(13, 110, 253, 0.2);
+}
+.btn-create:hover {
+    background: #0b5ed7;
+    color: white;
+}
+
+/* ESTATÍSTICAS */
+.event-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    border-left: 4px solid transparent;
+}
+.stat-card.blue { border-left-color: #0d6efd; }
+.stat-card.green { border-left-color: #198754; }
+.stat-card.purple { border-left-color: #6f42c1; }
+.stat-card.orange { border-left-color: #fd7e14; }
+.stat-card.red { border-left-color: #dc3545; }
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: white;
+    flex-shrink: 0;
+}
+.stat-card.blue .stat-icon { background: #0d6efd; }
+.stat-card.green .stat-icon { background: #198754; }
+.stat-card.purple .stat-icon { background: #6f42c1; }
+.stat-card.orange .stat-icon { background: #fd7e14; }
+.stat-card.red .stat-icon { background: #dc3545; }
+
+.stat-info h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #333;
+}
+.stat-info span {
+    font-size: 12px;
+    color: #6c757d;
+    display: block;
+}
+
+/* FILTROS */
+.event-toolbar-container {
+    background: white;
+    border-radius: 8px 8px 0 0;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #edf2f7;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.status-tabs {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.status-tab {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #495057;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    font-weight: 500;
+    cursor: pointer;
+}
+.status-tab.active {
+    background: #0d6efd;
+    color: white;
+    border-color: #0d6efd;
+}
+.filter-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.filter-controls input,
+.filter-controls select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    outline: none;
+}
+.btn-filter {
+    background: #0d6efd;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* TABELA */
+.event-table-card {
+    background: white;
+    border-radius: 0 0 8px 8px;
+    overflow-x: auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    margin-bottom: 20px;
+}
+.event-table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+.event-table th {
+    background: #f8f9fa;
+    color: #495057;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+.event-table td {
+    padding: 12px 15px;
+    border-top: 1px solid #edf2f7;
+    font-size: 13px;
+    vertical-align: middle;
+}
+.event-detail-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 220px;
+}
+.event-thumb {
+    width: 65px;
+    height: 48px;
+    border-radius: 5px;
+    object-fit: cover;
+    background-color: #e9ecef;
+    flex-shrink: 0;
+}
+.event-no-image {
+    width: 65px;
+    height: 48px;
+    border-radius: 5px;
+    background: #e9ecef;
+    color: #89929b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    flex-shrink: 0;
+}
+.event-title {
+    font-weight: 600;
+    color: #212529;
+    font-size: 13px;
+}
+.event-description {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+/* ESTADOS */
+.badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+.badge-upcoming { background: #e7f1ff; color: #0d6efd; }
+.badge-ongoing { background: #d1e7dd; color: #0f5132; }
+.badge-completed { background: #e2e3e5; color: #41464b; }
+.badge-cancelled { background: #f8d7da; color: #842029; }
+
+.type-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    background: #eef2f7;
+    color: #333;
+}
+
+/* PARTICIPANTES */
+.participant-box { width: 120px; }
+.participant-text {
+    font-size: 11px;
+    margin-bottom: 3px;
+    font-weight: 600;
+}
+.progress {
+    height: 5px;
+    background: #e9ecef;
+    border-radius: 3px;
+    overflow: hidden;
+}
+.progress-bar {
+    height: 100%;
+    background: #0d6efd;
+}
+
+/* AÇÕES */
+.action-buttons { display: flex; gap: 4px; }
+.action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+.btn-view { background: #e7f1ff; color: #0d6efd; }
+.btn-edit { background: #0d6efd; color: white; }
+.btn-delete { background: #dc3545; color: white; }
+
+/* PAINÉIS INFERIORES */
+.bottom-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.8fr 1.2fr 1.2fr;
+    gap: 15px;
+}
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.card-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.card-title a {
+    font-size: 11px;
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+/* AÇÕES RÁPIDAS */
+.quick-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    cursor: pointer;
+}
+.qb-blue { background: #0d6efd; }
+.qb-green { background: #198754; }
+.qb-orange { background: #fd7e14; }
+.qb-purple { background: #6f42c1; }
+
+.no-results {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+}
+
+@media(max-width: 1200px) {
+    .event-stats { grid-template-columns: repeat(2, 1fr); }
+    .bottom-grid { grid-template-columns: 1fr 1fr; }
+}
+@media(max-width: 650px) {
+    .event-page { padding: 12px; }
+    .event-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    .event-stats { grid-template-columns: 1fr; }
+    .bottom-grid { grid-template-columns: 1fr; }
+    .filter-controls { width: 100%; }
+    .filter-controls input,
+    .filter-controls select { width: 100%; }
+}
+</style>
+
+<div class="event-page">
+
+    <!-- CABEÇALHO -->
+    <div class="breadcrumb">
+        Painel de Controlo &gt; Gestão de Eventos
+    </div>
+
+    <div class="event-header">
+        <div>
+            <h2>
+                <i class="fas fa-calendar-alt" style="color: #0d6efd;"></i>
+                Gestão de Eventos
+            </h2>
+            <p>Gerir eventos, atividades, workshops, conferências e programas juvenis da OJETIL.</p>
+        </div>
+
+        <a href="{% url 'events:event_create' %}" class="btn-create">
+            <i class="fas fa-plus"></i> Criar Evento
+        </a>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <div class="event-stats">
+
+        <div class="stat-card blue">
+            <div class="stat-icon"><i class="fas fa-calendar"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_events|default:"0" }}</h3>
+                <span>Total de Eventos</span>
+            </div>
+        </div>
+
+        <div class="stat-card green">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <h3>{{ upcoming_events|default:"0" }}</h3>
+                <span>Próximos Eventos</span>
+            </div>
+        </div>
+
+        <div class="stat-card purple">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3>{{ ongoing_events|default:"0" }}</h3>
+                <span>Eventos em Curso</span>
+            </div>
+        </div>
+
+        <div class="stat-card orange">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-info">
+                <h3>{{ completed_events|default:"0" }}</h3>
+                <span>Eventos Concluídos</span>
+            </div>
+        </div>
+
+        <div class="stat-card red">
+            <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+            <div class="stat-info">
+                <h3>{{ cancelled_events|default:"0" }}</h3>
+                <span>Eventos Cancelados</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FILTROS E SEPARADORES -->
+    <div class="event-toolbar-container">
+
+        <div class="status-tabs">
+            <button type="button" class="status-tab active" data-status="">
+                Todos
+            </button>
+            <button type="button" class="status-tab" data-status="Upcoming">
+                Próximos
+            </button>
+            <button type="button" class="status-tab" data-status="Ongoing">
+                Em Curso
+            </button>
+            <button type="button" class="status-tab" data-status="Completed">
+                Concluídos
+            </button>
+            <button type="button" class="status-tab" data-status="Cancelled">
+                Cancelados
+            </button>
+        </div>
+
+        <div class="filter-controls">
+
+            <input type="text" id="eventSearch"
+                   placeholder="Pesquisar eventos...">
+
+            <select id="typeFilter">
+                <option value="">Todos os Tipos</option>
+                {% for event_type in event_types %}
+                    <option value="{{ event_type.0 }}">{{ event_type.1 }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="statusFilter">
+                <option value="">Todos os Estados</option>
+                <option value="Upcoming">Próximo</option>
+                <option value="Ongoing">Em Curso</option>
+                <option value="Completed">Concluído</option>
+                <option value="Cancelled">Cancelado</option>
+            </select>
+
+            <button type="button" class="btn-filter" id="clearFilters">
+                <i class="fas fa-eraser"></i> Limpar Filtros
+            </button>
+
+        </div>
+    </div>
+
+    <!-- TABELA DE EVENTOS -->
+    <div class="event-table-card">
+
+        <table class="event-table" id="eventTable">
+
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Detalhes do Evento</th>
+                    <th>Data e Hora</th>
+                    <th>Local</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Participantes</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for event in events %}
+
+                <tr class="event-row"
+                    data-status="{{ event.status|default:''|lower }}"
+                    data-type="{{ event.event_type|default:''|lower }}">
+
+                    <td>{{ forloop.counter }}</td>
+
+                    <!-- FOTOGRAFIA DO EVENTO -->
+                    <td>
+                        <div class="event-detail-cell">
+
+                            {% if event.image %}
+                                <img
+                                    src="{{ event.image.url }}"
+                                    class="event-thumb"
+                                    alt="{{ event.title }}"
+                                    loading="lazy">
+                            {% else %}
+                                <div class="event-no-image">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            {% endif %}
+
+                            <div>
+                                <div class="event-title">
+                                    {{ event.title }}
+                                </div>
+                                <div class="event-description">
+                                    {{ event.description|truncatechars:45 }}
+                                </div>
+                            </div>
+
+                        </div>
+                    </td>
+
+                    <td>
+                        <strong>{{ event.event_date|date:"d/m/Y" }}</strong><br>
+                        <small style="color: #6c757d;">
+                            {{ event.start_time|time:"H:i" }}
+                            {% if event.end_time %}
+                                - {{ event.end_time|time:"H:i" }}
+                            {% endif %}
+                        </small>
+                    </td>
+
+                    <td>
+                        <i class="fas fa-map-marker-alt" style="color: #0d6efd;"></i>
+                        {{ event.location }}
+                    </td>
+
+                    <td>
+                        <span class="type-badge">{{ event.event_type }}</span>
+                    </td>
+
+                    <td>
+                        {% if event.status == 'Upcoming' %}
+                            <span class="badge badge-upcoming">Próximo</span>
+                        {% elif event.status == 'Ongoing' %}
+                            <span class="badge badge-ongoing">Em Curso</span>
+                        {% elif event.status == 'Completed' %}
+                            <span class="badge badge-completed">Concluído</span>
+                        {% elif event.status == 'Cancelled' %}
+                            <span class="badge badge-cancelled">Cancelado</span>
+                        {% else %}
+                            <span class="badge badge-completed">{{ event.status }}</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <div class="participant-box">
+                            <div class="participant-text">
+                                {{ event.participants|default:"0" }}/{{ event.max_participants|default:"0" }}
+                                ({{ event.participant_percentage|default:"0" }}%)
+                            </div>
+
+                            <div class="progress">
+                                <div class="progress-bar"
+                                     style="width: {{ event.participant_percentage|default:'0' }}%;">
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="action-buttons">
+
+                            <a href="{% url 'events:event_detail' event.pk %}"
+                               class="action-btn btn-view"
+                               title="Visualizar">
+                                <i class="fas fa-eye"></i>
+                            </a>
+
+                            <a href="{% url 'events:event_update' event.pk %}"
+                               class="action-btn btn-edit"
+                               title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <a href="{% url 'events:event_delete' event.pk %}"
+                               class="action-btn btn-delete"
+                               title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </a>
+
+                        </div>
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="8" style="text-align:center; padding: 40px;">
+                        <i class="fas fa-calendar-times"
+                           style="font-size:40px; color:#aaa;"></i>
+
+                        <p style="margin-top: 10px; color: #6c757d;">
+                            Ainda não existem eventos registados.
+                        </p>
+
+                        <a href="{% url 'events:event_create' %}"
+                           class="btn-create"
+                           style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> Criar Primeiro Evento
+                        </a>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        <div class="no-results" id="noResults">
+            <i class="fas fa-search" style="font-size:30px;"></i>
+            <p class="mt-2">Nenhum evento corresponde aos critérios de pesquisa.</p>
+        </div>
+
+    </div>
+
+    <!-- PAINÉIS INFERIORES -->
+    <div class="bottom-grid">
+
+        <div class="dashboard-card">
+            <div class="card-title">
+                <span><i class="fas fa-calendar-alt"></i> Próximos Eventos</span>
+            </div>
+            <p style="font-size: 12px; color: #888; text-align: center; padding: 20px 0;">
+                Consulte a lista de eventos para ver os próximos eventos.
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-title">
+                <span><i class="fas fa-chart-bar"></i> Estatísticas de Eventos</span>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center; margin:12px 0;">
+                <span style="font-size:12px; width:100px;">Próximos</span>
+                <div class="progress" style="flex:1;">
+                    <div class="progress-bar"
+                         style="width: {% if total_events %}{% widthratio upcoming_events total_events 100 %}{% else %}0{% endif %}%;">
+                    </div>
+                </div>
+                <strong style="font-size:12px;">{{ upcoming_events|default:"0" }}</strong>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center; margin:12px 0;">
+                <span style="font-size:12px; width:100px;">Em Curso</span>
+                <div class="progress" style="flex:1;">
+                    <div class="progress-bar"
+                         style="width: {% if total_events %}{% widthratio ongoing_events total_events 100 %}{% else %}0{% endif %}%;">
+                    </div>
+                </div>
+                <strong style="font-size:12px;">{{ ongoing_events|default:"0" }}</strong>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center; margin:12px 0;">
+                <span style="font-size:12px; width:100px;">Concluídos</span>
+                <div class="progress" style="flex:1;">
+                    <div class="progress-bar"
+                         style="width: {% if total_events %}{% widthratio completed_events total_events 100 %}{% else %}0{% endif %}%;">
+                    </div>
+                </div>
+                <strong style="font-size:12px;">{{ completed_events|default:"0" }}</strong>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-title">
+                <span><i class="fas fa-chart-pie"></i> Tipos de Eventos</span>
+            </div>
+            <p style="font-size: 12px; color: #888; text-align: center; padding: 20px 0;">
+                Os tipos de eventos estão disponíveis na tabela acima.
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-title">
+                <span><i class="fas fa-bolt"></i> Ações Rápidas</span>
+            </div>
+
+            <a href="{% url 'events:event_create' %}" class="quick-btn qb-blue">
+                <i class="fas fa-plus"></i> Criar Novo Evento
+            </a>
+
+            <a href="{% url 'events:activity_category_list' %}" class="quick-btn qb-green">
+                <i class="fas fa-folder"></i> Gerir Categorias
+            </a>
+
+            {% comment %} <button type="button" class="quick-btn qb-orange">
+                <i class="fas fa-file-alt"></i> Gerar Relatório
+            </button> {% endcomment %}
+
+            <a href="{% url 'events:send_invitation'%}" class="quick-btn qb-purple">
+                <i class="fas fa-envelope"></i> Enviar Convite
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const searchInput = document.getElementById('eventSearch');
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const clearButton = document.getElementById('clearFilters');
+    const tabs = document.querySelectorAll('.status-tab');
+    const rows = document.querySelectorAll('.event-row');
+    const noResults = document.getElementById('noResults');
+
+    let activeTabStatus = '';
+
+    function filterEvents() {
+
+        const search = searchInput.value.toLowerCase().trim();
+        const type = typeFilter.value.toLowerCase().trim();
+        const selectedStatus = statusFilter.value.toLowerCase().trim();
+
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+
+            const rowText = row.innerText.toLowerCase();
+            const rowType = row.dataset.type;
+            const rowStatus = row.dataset.status;
+
+            const matchesSearch = rowText.includes(search);
+            const matchesType = !type || rowType === type;
+            const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+            const matchesTab = !activeTabStatus || rowStatus === activeTabStatus.toLowerCase();
+
+            const showRow = matchesSearch && matchesType && matchesStatus && matchesTab;
+
+            row.style.display = showRow ? '' : 'none';
+
+            if (showRow) {
+                visibleCount++;
+            }
+        });
+
+        noResults.style.display = visibleCount === 0 && rows.length > 0
+            ? 'block'
+            : 'none';
+    }
+
+    searchInput.addEventListener('input', filterEvents);
+    typeFilter.addEventListener('change', filterEvents);
+    statusFilter.addEventListener('change', filterEvents);
+
+    tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+
+            tabs.forEach(function (item) {
+                item.classList.remove('active');
+            });
+
+            this.classList.add('active');
+            activeTabStatus = this.dataset.status;
+
+            statusFilter.value = activeTabStatus;
+            filterEvents();
+        });
+    });
+
+    clearButton.addEventListener('click', function () {
+
+        searchInput.value = '';
+        typeFilter.value = '';
+        statusFilter.value = '';
+        activeTabStatus = '';
+
+        tabs.forEach(function (tab) {
+            tab.classList.remove('active');
+        });
+
+        document.querySelector('.status-tab[data-status=""]').classList.add('active');
+
+        filterEvents();
+    });
+
+});
+</script>
+
+{% endblock %}

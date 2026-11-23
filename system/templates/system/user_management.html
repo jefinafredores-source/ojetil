@@ -1,0 +1,194 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Configurações Gerais</h3>
+
+        <a href="{% url 'system:dashboard' %}"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar ao Painel de Controlo
+        </a>
+    </div>
+
+<div class="container-fluid py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-primary">
+                <i class="bi bi-people-fill"></i> Gestão de Utilizadores
+            </h3>
+            <p class="text-muted">Gerir os utilizadores do sistema OJETIL.</p>
+        </div>
+
+        <a href="{% url 'system:user_create' %}"
+           class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Adicionar Utilizador
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-muted">Total de Utilizadores</h6>
+                    <h3 class="fw-bold">{{ total_users }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-success">Utilizadores Ativos</h6>
+                    <h3 class="fw-bold">{{ active_users }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="text-danger">Utilizadores Inativos</h6>
+                    <h3 class="fw-bold">{{ inactive_users }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+
+            <form method="GET" class="row g-2 mb-4">
+                <div class="col-md-6">
+                    <input type="text"
+                           name="search"
+                           value="{{ search }}"
+                           class="form-control"
+                           placeholder="Pesquisar nome de utilizador, nome completo ou e-mail...">
+                </div>
+
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Todos os Estados</option>
+                        <option value="active"
+                            {% if status == 'active' %}selected{% endif %}>
+                            Ativo
+                        </option>
+                        <option value="inactive"
+                            {% if status == 'inactive' %}selected{% endif %}>
+                            Inativo
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Pesquisar
+                    </button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>N.º</th>
+                            <th>Nome de Utilizador</th>
+                            <th>Nome Completo</th>
+                            <th>E-mail</th>
+                            <th>Função</th>
+                            <th>Estado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+
+                            <td class="fw-semibold">
+                                {{ user.username }}
+                            </td>
+
+                            <td>
+                                {{ user.get_full_name|default:"-" }}
+                            </td>
+
+                            <td>{{ user.email|default:"-" }}</td>
+
+                            <td>
+                                {% if user.is_superuser %}
+                                    <span class="badge bg-danger">
+                                        Superutilizador
+                                    </span>
+                                {% else %}
+                                    {% for group in user.groups.all %}
+                                        <span class="badge bg-info text-dark">
+                                            {{ group.name }}
+                                        </span>
+                                    {% empty %}
+                                        <span class="text-muted">Sem Função</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if user.is_active %}
+                                    <span class="badge bg-success">Ativo</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inativo</span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'system:user_edit' user.pk %}"
+                                       class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    {% if user != request.user and not user.is_superuser %}
+                                    <form method="POST"
+                                          action="{% url 'system:user_delete' user.pk %}"
+                                          onsubmit="return confirm('Tem a certeza de que pretende eliminar este utilizador?');">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                                class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                Ainda não existem utilizadores registados.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,412 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<style>
+  .report-wrap {
+    padding: 20px;
+    background: #f4f6f9;
+    min-height: 85vh;
+  }
+
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .report-header h2 {
+    color: #0b2545;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .btn-blue { background: #1d61e8; }
+  .btn-blue:hover { background: #144bb8; color: #fff; }
+
+  .btn-green { background: #16a34a; }
+  .btn-green:hover { background: #12843c; color: #fff; }
+
+  .btn-gray { background: #6b7280; }
+  .btn-gray:hover { background: #4b5563; color: #fff; }
+
+  .summary {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .summary .box {
+    background: #fff;
+    border-left: 5px solid #1d61e8;
+    border-radius: 10px;
+    padding: 14px 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  }
+
+  .summary .box small {
+    display: block;
+    color: #6b7280;
+    font-size: 12px;
+  }
+
+  .summary .box strong {
+    font-size: 26px;
+    color: #0b2545;
+  }
+
+  .filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: end;
+    background: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  }
+
+  .filters label {
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    color: #4b5563;
+    gap: 4px;
+  }
+
+  .filters input,
+  .filters select {
+    padding: 9px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    min-width: 150px;
+  }
+
+  .table-box {
+    background: #fff;
+    border-radius: 10px;
+    overflow-x: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  }
+
+  table.report {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  table.report th {
+    background: #0b2545;
+    color: #fff;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+  }
+
+  table.report td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 14px;
+  }
+
+  table.report tbody tr:nth-child(even) {
+    background: #f9fafb;
+  }
+
+  table.report tbody tr:hover {
+    background: #eef4ff;
+  }
+
+  .empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 24px !important;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-active {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .badge-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .badge-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .print-only {
+    display: none;
+  }
+
+  @media print {
+    .no-print,
+    .sidebar,
+    aside,
+    nav,
+    header,
+    footer {
+      display: none !important;
+    }
+
+    body,
+    .report-wrap {
+      background: #fff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .print-only {
+      display: block;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .print-only h2 {
+      font-size: 20px;
+      color: #000;
+    }
+
+    .print-only p {
+      font-size: 12px;
+      color: #444;
+    }
+
+    .table-box,
+    .summary .box {
+      box-shadow: none;
+    }
+
+    table.report th {
+      background: #ddd !important;
+      color: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    table.report td,
+    table.report th {
+      border: 1px solid #999;
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  }
+</style>
+
+<div class="report-wrap">
+
+  <!-- CABEÇALHO -->
+  <div class="report-header no-print">
+    <h2>📊 Relatório de Membros</h2>
+
+    <div class="actions">
+      <button class="btn btn-blue" onclick="window.print()">
+        🖨 Imprimir / PDF
+      </button>
+
+      <a class="btn btn-green"
+         href="{% url 'report:member_report_csv' %}?{{ request.GET.urlencode }}">
+        ⬇ Exportar para Excel
+      </a>
+    </div>
+  </div>
+
+  <!-- CABEÇALHO PARA IMPRESSÃO -->
+  <div class="print-only">
+    <h2>OJETIL</h2>
+    <h2>Organização da Juventude e dos Estudantes de Timor-Leste</h2>
+    <h3>Relatório de Membros</h3>
+
+    <p>
+      Data: {% now "d/m/Y H:i" %}
+      |
+      Total: {{ total }}
+    </p>
+  </div>
+
+  <!-- RESUMO -->
+  <div class="summary no-print">
+    <div class="box">
+      <small>Total de Membros</small>
+      <strong>{{ total }}</strong>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <form method="get" class="filters no-print">
+
+    <label>
+      Pesquisar por Nome
+      <input
+        type="text"
+        name="q"
+        placeholder="Nome do membro..."
+        value="{{ request.GET.q }}"
+      >
+    </label>
+
+    <label>
+      Estado
+      <select name="status">
+        <option value="">-- Todos --</option>
+
+        <option value="Ativo"
+          {% if request.GET.status == 'Ativo' %}selected{% endif %}>
+          Ativo
+        </option>
+
+        <option value="Em Aprovação"
+          {% if request.GET.status == 'Em Aprovação' %}selected{% endif %}>
+          Em Aprovação
+        </option>
+
+        <option value="Inativo"
+          {% if request.GET.status == 'Inativo' %}selected{% endif %}>
+          Inativo
+        </option>
+      </select>
+    </label>
+
+    <label>
+      Data de Início do Registo
+      <input
+        type="date"
+        name="date_from"
+        value="{{ request.GET.date_from }}"
+      >
+    </label>
+
+    <label>
+      Data de Fim do Registo
+      <input
+        type="date"
+        name="date_to"
+        value="{{ request.GET.date_to }}"
+      >
+    </label>
+
+    <button class="btn btn-blue" type="submit">
+      🔍 Filtrar
+    </button>
+
+    <a class="btn btn-gray"
+       href="{% url 'report:member_report' %}">
+      Limpar
+    </a>
+
+  </form>
+
+  <!-- TABELA DE MEMBROS -->
+  <div class="table-box">
+    <table class="report">
+
+      <thead>
+        <tr>
+          <th style="width:60px">N.º</th>
+          <th>Código de Membro</th>
+          <th>Nome Completo</th>
+          <th>E-mail</th>
+          <th>N.º de Telemóvel</th>
+          <th>Estado</th>
+          <th>Data de Registo</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for m in members %}
+        <tr>
+
+          <td>{{ forloop.counter }}</td>
+
+          <td>{{ m.member_id_code|default:"-" }}</td>
+
+          <td>{{ m.full_name }}</td>
+
+          <td>{{ m.email|default:"-" }}</td>
+
+          <td>{{ m.phone_number|default:"-" }}</td>
+
+          <td>
+            {% if m.status == 'Ativo' %}
+              <span class="badge badge-active">
+                Ativo
+              </span>
+
+            {% elif m.status == 'Em Aprovação' %}
+              <span class="badge badge-pending">
+                Em Aprovação
+              </span>
+
+            {% elif m.status == 'Inativo' %}
+              <span class="badge badge-inactive">
+                Inativo
+              </span>
+
+            {% else %}
+              <span class="badge badge-inactive">
+                {{ m.status|default:"-" }}
+              </span>
+            {% endif %}
+          </td>
+
+          <td>
+            {{ m.registration_date|date:"d/m/Y"|default:"-" }}
+          </td>
+
+        </tr>
+
+        {% empty %}
+        <tr>
+          <td colspan="7" class="empty">
+            Não existem dados de membros.
+          </td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TOTAL -->
+  <p style="margin-top:14px;color:#0b2545">
+    <strong>Total de Membros: {{ total }}</strong>
+  </p>
+
+</div>
+{% endblock %}

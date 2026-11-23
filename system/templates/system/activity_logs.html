@@ -1,0 +1,248 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Cabeçalho -->
+
+    <div class="container-fluid">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Configurações Gerais</h3>
+
+            <a href="{% url 'system:dashboard' %}"
+               class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>
+                Voltar ao Painel de Controlo
+            </a>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-primary">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Registo de Atividades
+                </h3>
+                <p class="text-muted mb-0">
+                    Histórico de todas as atividades dos utilizadores no sistema OJETIL.
+                </p>
+            </div>
+        </div>
+
+        <!-- Estatísticas -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted mb-1">Total de Atividades</p>
+                        <h3 class="fw-bold">{{ total_logs }}</h3>
+                        <i class="bi bi-list-check text-primary fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted mb-1">Atividades de Início de Sessão</p>
+                        <h3 class="fw-bold text-success">{{ login_count }}</h3>
+                        <i class="bi bi-box-arrow-in-right text-success fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted mb-1">Registos Criados</p>
+                        <h3 class="fw-bold text-primary">{{ create_count }}</h3>
+                        <i class="bi bi-plus-circle text-primary fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body">
+                        <p class="text-muted mb-1">Registos Atualizados</p>
+                        <h3 class="fw-bold text-warning">{{ update_count }}</h3>
+                        <i class="bi bi-pencil-square text-warning fs-3"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pesquisa e Filtros -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+
+                <form method="GET" class="row g-3">
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Pesquisar</label>
+                        <input type="text"
+                               name="search"
+                               value="{{ search }}"
+                               class="form-control"
+                               placeholder="Nome de utilizador, descrição...">
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Tipo de Atividade</label>
+                        <select name="action" class="form-select">
+                            <option value="">Todas as Atividades</option>
+
+                            {% for value, label in action_choices %}
+                                <option value="{{ value }}"
+                                    {% if action == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Data Inicial</label>
+                        <input type="date"
+                               name="date_from"
+                               value="{{ date_from }}"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label">Data Final</label>
+                        <input type="date"
+                               name="date_to"
+                               value="{{ date_to }}"
+                               class="form-control">
+                    </div>
+
+                    <div class="col-lg-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i> Filtrar
+                        </button>
+
+                        <a href="{% url 'system:activity_logs' %}"
+                           class="btn btn-secondary">
+                            Repor
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Tabela de Atividades -->
+        <div class="card border-0 shadow-sm">
+
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold mb-0">
+                    Histórico de Atividades
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>N.º</th>
+                                <th>Utilizador</th>
+                                <th>Atividade</th>
+                                <th>Descrição</th>
+                                <th>Módulo</th>
+                                <th>Endereço IP</th>
+                                <th>Data e Hora</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for log in logs %}
+                            <tr>
+
+                                <td>{{ forloop.counter }}</td>
+
+                                <td class="fw-semibold">
+                                    {% if log.user %}
+                                        {{ log.user.username }}
+                                    {% else %}
+                                        Utilizador Desconhecido
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if log.action == 'LOGIN' %}
+                                        <span class="badge bg-success">Início de Sessão</span>
+                                    {% elif log.action == 'LOGOUT' %}
+                                        <span class="badge bg-secondary">Fim de Sessão</span>
+                                    {% elif log.action == 'CREATE' %}
+                                        <span class="badge bg-primary">Criar</span>
+                                    {% elif log.action == 'UPDATE' %}
+                                        <span class="badge bg-warning text-dark">Atualizar</span>
+                                    {% elif log.action == 'DELETE' %}
+                                        <span class="badge bg-danger">Eliminar</span>
+                                    {% elif log.action == 'BACKUP' %}
+                                        <span class="badge bg-info text-dark">Cópia de Segurança</span>
+                                    {% elif log.action == 'RESTORE' %}
+                                        <span class="badge bg-dark">Restaurar</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">
+                                            {{ log.get_action_display }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ log.description }}</td>
+
+                                <td>
+                                    {% if log.model_name %}
+                                        {{ log.model_name }}
+                                        {% if log.object_id %}
+                                            #{{ log.object_id }}
+                                        {% endif %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ log.ip_address|default:"-" }}</td>
+
+                                <td>
+                                    {{ log.created_at|date:"d/m/Y H:i:s" }}
+                                </td>
+
+                            </tr>
+
+                            {% empty %}
+                            <tr>
+                                <td colspan="7"
+                                    class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                    Ainda não existem atividades registadas.
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <small class="text-muted">
+                    São apresentadas as últimas 300 atividades.
+                </small>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

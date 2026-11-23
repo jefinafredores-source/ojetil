@@ -1,0 +1,192 @@
+```html
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .unit-form-page {
+        padding: 24px;
+        background: #f5f7fb;
+        min-height: 80vh;
+    }
+
+    .unit-form-card {
+        max-width: 850px;
+        margin: 0 auto;
+        background: #fff;
+        border: 1px solid #e8edf5;
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    .unit-form-header {
+        padding: 24px;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .unit-form-header h3 {
+        margin: 0;
+        font-weight: 700;
+        color: #172b4d;
+    }
+
+    .unit-form-header p {
+        color: #718096;
+        margin: 8px 0 0;
+        font-size: 14px;
+    }
+
+    .unit-form-body {
+        padding: 26px;
+    }
+
+    .unit-form-body label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+    }
+
+    .unit-form-body .form-control,
+    .unit-form-body .form-select {
+        border-color: #dce3ed;
+        border-radius: 8px;
+        padding: 11px 12px;
+    }
+
+    .unit-form-body .form-control:focus,
+    .unit-form-body .form-select:focus {
+        border-color: #1764ed;
+        box-shadow: 0 0 0 3px rgba(23,100,237,.1);
+    }
+
+    .unit-form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding-top: 22px;
+        border-top: 1px solid #edf0f5;
+        margin-top: 24px;
+    }
+
+    @media(max-width: 576px) {
+        .unit-form-page {
+            padding: 12px;
+        }
+
+        .unit-form-body,
+        .unit-form-header {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="unit-form-page">
+
+    <div class="mb-4">
+        <a href="{% if unit_type == 'committee' %}{% url 'organization:committee_list' %}{% else %}{% url 'organization:department_list' %}{% endif %}"
+           class="text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to list
+        </a>
+    </div>
+
+    <div class="unit-form-card">
+
+        <div class="unit-form-header">
+            <h3>
+                <i class="bi bi-people-fill text-primary me-2"></i>
+                {{ page_title|default:"Add Organization Unit" }}
+            </h3>
+            <p>
+                Enter the information below to register this organization unit.
+            </p>
+        </div>
+
+        <div class="unit-form-body">
+
+            {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                Favor verifica kampu sira. Iha informasaun balu ne'ebé seidauk loos.
+            </div>
+        {% endif %}
+
+                <div class="mb-4">
+                    <label for="{{ form.name.id_for_label }}">
+                        Unit Name <span class="text-danger">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.unit_type.id_for_label }}">
+                        Unit Type
+                    </label>
+                    <select name="unit_type" class="form-select"
+                            id="unit_type" disabled>
+                        {% if unit_type == 'committee' %}
+                            <option value="committee" selected>Committee</option>
+                        {% else %}
+                            <option value="department" selected>Department</option>
+                        {% endif %}
+                    </select>
+                    <small class="text-muted">
+                        Unit type is determined by the page you opened.
+                    </small>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.description.id_for_label }}">
+                        Description
+                    </label>
+                    {{ form.description }}
+                    {% for error in form.description.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-check mb-3">
+                    {{ form.is_active }}
+                    <label class="form-check-label"
+                           for="{{ form.is_active.id_for_label }}">
+                        Active
+                    </label>
+                    {% for error in form.is_active.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="unit-form-actions">
+                    <a href="{% if unit_type == 'committee' %}{% url 'organization:committee_list' %}{% else %}{% url 'organization:department_list' %}{% endif %}"
+                       class="btn btn-light border">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i>
+                        Save
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+```

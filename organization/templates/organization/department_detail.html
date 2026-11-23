@@ -1,0 +1,361 @@
+
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<style>
+.detail-page {
+    padding: 20px;
+    font-size: 13px;
+    color: #1f2a44;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.detail-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-icon {
+    width: 48px;
+    height: 48px;
+    background: #e3edff;
+    color: #1764ed;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.detail-title h4 {
+    margin: 0;
+    color: #0b2a5b;
+    font-weight: 700;
+}
+
+.detail-title p {
+    margin: 4px 0 0;
+    color: #71809c;
+}
+
+.detail-card {
+    background: #fff;
+    border: 1px solid #dce4f1;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.detail-card-header {
+    padding: 14px 18px;
+    background: #f5f8ff;
+    border-bottom: 1px solid #e1e8f5;
+    font-weight: 700;
+    color: #173568;
+}
+
+.detail-card-body {
+    padding: 20px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 11px;
+    color: #7a88a6;
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.info-item strong {
+    font-size: 14px;
+    color: #1c2d4f;
+}
+
+.description {
+    color: #52617d;
+    line-height: 1.7;
+}
+
+.detail-status {
+    display: inline-block;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.status-active {
+    background: #d9f5e5;
+    color: #17803d;
+}
+
+.status-inactive {
+    background: #ececec;
+    color: #666;
+}
+
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.detail-table th {
+    background: #f3f6fc;
+    color: #344563;
+    padding: 12px;
+    text-align: left;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.detail-table td {
+    padding: 12px;
+    border-bottom: 1px solid #edf0f6;
+    font-size: 12.5px;
+}
+
+.detail-table tbody tr:hover {
+    background: #f8faff;
+}
+
+.empty-row {
+    text-align: center;
+    color: #8290a8;
+    padding: 25px !important;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.detail-actions a {
+    padding: 9px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-back {
+    background: #68758b;
+    color: #fff;
+}
+
+.btn-edit {
+    background: #1764ed;
+    color: #fff;
+}
+
+.btn-back:hover {
+    background: #505d72;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background: #0f4fc4;
+    color: #fff;
+}
+
+@media(max-width: 600px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-page {
+        padding: 10px;
+    }
+}
+</style>
+
+<div class="detail-page">
+
+    <!-- HEADER -->
+    <div class="detail-header">
+
+        <div class="detail-title">
+            <div class="detail-icon">
+                <i class="bi bi-building"></i>
+            </div>
+
+            <div>
+                <h4>Detalhes do Departamento</h4>
+                <p>Informasaun kompletu kona-ba departamento OJETIL.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- INFORMASAUN DEPARTAMENTO -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <i class="bi bi-info-circle me-2"></i>
+            Informasaun Geral
+        </div>
+
+        <div class="detail-card-body">
+
+            <div class="info-grid">
+
+                <div class="info-item">
+                    <label>Nome do Departamento</label>
+                    <strong>{{ department.name }}</strong>
+                </div>
+
+                <div class="info-item">
+                    <label>Estado</label>
+
+                    {% if department.is_active %}
+                        <span class="detail-status status-active">
+                            Ativo
+                        </span>
+                    {% else %}
+                        <span class="detail-status status-inactive">
+                            Inativo
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="info-item">
+                    <label>Total de Posições</label>
+                    <strong>{{ total_positions }}</strong>
+                </div>
+
+                <div class="info-item">
+                    <label>Data de Registo</label>
+                    <strong>
+                        {{ department.created_at|date:"d/m/Y"|default:"-" }}
+                    </strong>
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="info-item">
+                <label>Descrição do Departamento</label>
+
+                <div class="description">
+                    {{ department.description|default:"La iha deskrisaun."|linebreaks }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LISTA POSISAUN -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+            <i class="bi bi-diagram-3 me-2"></i>
+            Lista Posições do Departamento
+        </div>
+
+        <div class="detail-card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="detail-table">
+
+                    <thead>
+                        <tr>
+                            <th>N.º</th>
+                            <th>Posição</th>
+                            <th>Nome do Responsável</th>
+                            <th>Posição Superior</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for p in positions %}
+
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+
+                            <td>
+                                <strong>{{ p.title }}</strong>
+                            </td>
+
+                            <td>
+                                {{ p.person_name|default:"-" }}
+                            </td>
+
+                            <td>
+                                {{ p.parent.title|default:"-" }}
+                            </td>
+
+                            <td>
+                                {% if p.is_active %}
+                                    <span class="detail-status status-active">
+                                        Ativo
+                                    </span>
+                                {% else %}
+                                    <span class="detail-status status-inactive">
+                                        Inativo
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+                            <td colspan="5" class="empty-row">
+                                <i class="bi bi-inbox fs-4 d-block mb-2"></i>
+                                Departamento ne'e seidauk iha pozisaun registada.
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- BUTAUN -->
+    <div class="detail-actions">
+
+        <a href="{% url 'organization:departments' %}"
+           class="btn-back">
+            <i class="bi bi-arrow-left me-1"></i>
+            Fila ba Lista Departamentos
+        </a>
+
+        <a href="{% url 'organization:department_edit' department.pk %}"
+           class="btn-edit">
+            <i class="bi bi-pencil me-1"></i>
+            Editar Departamento
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<div class="org-page">
+  <div class="o-panel" style="max-width:560px;">
+    <h4 style="color:#c0392b;">⚠️ Confirma para apagar</h4>
+    <p>Tem certeza que deseja apagar??<strong>{{ object }}</strong>? A ação não pode ser repetida.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="o-btn o-btn-red">Sim, Apaga</button>
+      <a href="javascript:history.back()" class="o-btn o-btn-gray">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

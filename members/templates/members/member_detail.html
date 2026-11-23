@@ -1,0 +1,1359 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+
+/* ============================================================
+   MEMBER DETAIL PAGE
+   ============================================================ */
+
+.member-detail-page {
+    padding: 18px;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.detail-title-box h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #212529;
+}
+
+.detail-title-box p {
+    margin: 4px 0 0;
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* ============================================================
+   GENERAL BOX
+   ============================================================ */
+
+.detail-box {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, .07);
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.detail-box-header {
+    min-height: 48px;
+    padding: 13px 17px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-box-header h5 {
+    margin: 0;
+    color: #0d6efd;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.detail-box-body {
+    padding: 18px;
+}
+
+/* ============================================================
+   PROFILE
+   ============================================================ */
+
+.profile-section {
+    text-align: center;
+}
+
+.profile-photo {
+    width: 150px;
+    height: 175px;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+    background: #f1f3f5;
+}
+
+.profile-no-photo {
+    width: 150px;
+    height: 175px;
+    margin: 0 auto;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    background: #f1f3f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #adb5bd;
+    font-size: 55px;
+}
+
+.profile-name {
+    margin-top: 14px;
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 700;
+    color: #212529;
+}
+
+.profile-id {
+    margin-top: 5px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+.member-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.status-active {
+    color: #198754;
+    background: #e9f7ef;
+    border: 1px solid #b9e5c9;
+}
+
+.status-pending {
+    color: #856404;
+    background: #fff8dc;
+    border: 1px solid #ffe08a;
+}
+
+.status-inactive {
+    color: #dc3545;
+    background: #fdebed;
+    border: 1px solid #f5b7bd;
+}
+
+.status-default {
+    color: #495057;
+    background: #f1f3f5;
+    border: 1px solid #dee2e6;
+}
+
+/* ============================================================
+   INFORMATION TABLE
+   ============================================================ */
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-table tr {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-table tr:last-child {
+    border-bottom: 0;
+}
+
+.info-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+    vertical-align: middle;
+}
+
+.info-label {
+    width: 205px;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.info-value {
+    color: #212529;
+    word-break: break-word;
+}
+
+/* ============================================================
+   MEMBERSHIP ID CARD
+   ============================================================ */
+
+.membership-card-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 0 18px;
+}
+
+.membership-card {
+    width: 480px;
+    height: 303px;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(
+            circle at 85% 15%,
+            rgba(215, 25, 32, .08),
+            transparent 32%
+        ),
+        linear-gradient(
+            135deg,
+            #ffffff 0%,
+            #ffffff 70%,
+            #f7f8fa 100%
+        );
+    border: 1px solid #cfd3d7;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .18);
+    font-family: Arial, Helvetica, sans-serif;
+    color: #222;
+}
+
+.membership-card::before {
+    content: "OJETIL";
+    position: absolute;
+    left: 145px;
+    top: 115px;
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: rgba(13, 110, 253, .035);
+    transform: rotate(-18deg);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ============================================================
+   CARD HEADER
+   ============================================================ */
+
+.card-header {
+    position: relative;
+    width: 100%;
+    height: 67px;
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid #e1e4e7;
+    z-index: 10;
+}
+
+.card-logo {
+    width: 47px;
+    height: 47px;
+    object-fit: contain;
+    margin-right: 9px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #fff;
+    z-index: 12;
+}
+
+.card-header-text {
+    position: relative;
+    z-index: 12;
+    line-height: 1.15;
+    padding-right: 118px;
+}
+
+.card-org-short {
+    display: block;
+    font-size: 17px;
+    font-weight: 900;
+    letter-spacing: .5px;
+    color: #1d2a35;
+}
+
+.card-org-full {
+    display: block;
+    max-width: 245px;
+    margin-top: 3px;
+    font-size: 6.8px;
+    line-height: 1.35;
+    color: #59636d;
+    text-transform: uppercase;
+}
+
+.card-membership-label {
+    position: absolute;
+    left: 71px;
+    top: 44px;
+    font-size: 6.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #0d6efd;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   BANDEIRA OJETIL - VETOR SVG EXATO
+   ============================================================ */
+
+.card-flag {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    width: 108px;
+    height: 64px;
+    overflow: hidden;
+    border: 1px solid #b5b5b5;
+    border-radius: 3px;
+    z-index: 30;
+    pointer-events: none;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.15);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.card-flag svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* ============================================================
+   CARD CONTENT
+   ============================================================ */
+
+.card-content {
+    position: absolute;
+    top: 80px;
+    left: 15px;
+    right: 15px;
+    bottom: 47px;
+    display: flex;
+    align-items: flex-start;
+    z-index: 5;
+}
+
+.card-photo {
+    width: 82px;
+    height: 101px;
+    flex: 0 0 82px;
+    object-fit: cover;
+    background: #f1f3f5;
+    border: 3px solid #fff;
+    outline: 1px solid #c9ced3;
+    border-radius: 5px;
+    margin-right: 14px;
+    box-shadow: 0 3px 9px rgba(0,0,0,.12);
+}
+
+.card-photo-empty {
+    width: 82px;
+    height: 101px;
+    flex: 0 0 82px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f1f3f5;
+    border: 3px solid #fff;
+    outline: 1px solid #c9ced3;
+    border-radius: 5px;
+    margin-right: 14px;
+    color: #adb5bd;
+    font-size: 28px;
+}
+
+.card-details {
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.card-details-title {
+    font-size: 6.5px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #6c757d;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.card-row {
+    min-height: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.card-label {
+    width: 55px;
+    flex: 0 0 55px;
+    font-size: 7.2px;
+    font-weight: 800;
+    color: #59636d;
+    text-transform: uppercase;
+}
+
+.card-value {
+    min-width: 0;
+    max-width: 150px;
+    font-size: 8.2px;
+    font-weight: 600;
+    color: #252b31;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-id {
+    color: #0d6efd;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .3px;
+}
+
+/* ============================================================
+   QR CODE
+   ============================================================ */
+
+.card-qr-wrapper {
+    width: 73px;
+    flex: 0 0 73px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 10px;
+}
+
+.card-qr,
+.card-qr-fallback {
+    width: 65px;
+    height: 65px;
+    object-fit: contain;
+    background: #fff;
+    border: 3px solid #fff;
+    outline: 1px solid #cfd3d7;
+    padding: 3px;
+    border-radius: 4px;
+}
+
+.card-qr {
+    display: block;
+}
+
+.card-qr-fallback {
+    display: none;
+}
+
+.card-qr-label {
+    margin-top: 4px;
+    font-size: 5.5px;
+    font-weight: 800;
+    color: #6c757d;
+    text-align: center;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   CARD FOOTER
+   ============================================================ */
+
+.card-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 6px;
+    height: 37px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    background: rgba(255,255,255,.98);
+    border-top: 1px solid #e1e4e7;
+    z-index: 20;
+}
+
+.card-motto {
+    font-size: 8px;
+    font-weight: 800;
+    font-style: italic;
+    color: #343a40;
+}
+
+.card-footer-right {
+    font-size: 6px;
+    font-weight: 700;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.card-color-strip {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 125px;
+    height: 6px;
+    display: flex;
+    z-index: 50;
+}
+
+.card-color-black {
+    width: 33.333%;
+    background: #111;
+}
+
+.card-color-red {
+    width: 33.333%;
+    background: #d71920;
+}
+
+.card-color-yellow {
+    width: 33.333%;
+    background: #f5c400;
+}
+
+/* ============================================================
+   DOCUMENT
+   ============================================================ */
+
+.document-box {
+    padding: 14px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    background: #f8f9fa;
+}
+
+.document-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    background: #e7f1ff;
+    color: #0d6efd;
+    font-size: 22px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 575px) {
+
+    .detail-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .detail-actions {
+        width: 100%;
+    }
+
+    .detail-actions a {
+        flex: 1;
+        text-align: center;
+    }
+
+    .info-label {
+        width: 130px;
+        white-space: normal;
+    }
+
+    .membership-card {
+        width: 480px;
+        max-width: none;
+        transform: scale(.82);
+        transform-origin: top center;
+        margin-bottom: -50px;
+    }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+
+@media print {
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    #printableCard,
+    #printableCard * {
+        visibility: visible !important;
+    }
+
+    #printableCard {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 85.6mm !important;
+        height: 53.98mm !important;
+        max-width: none !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        transform: none !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    @page {
+        size: 85.6mm 53.98mm;
+        margin: 0;
+    }
+}
+
+</style>
+
+
+<!-- ============================================================
+     MAIN PAGE
+     ============================================================ -->
+
+<div class="container-fluid member-detail-page">
+
+    <!-- PAGE HEADER -->
+
+    <div class="detail-header">
+
+        <div class="detail-title-box">
+
+            <h3>
+                <i class="bi bi-person-vcard-fill text-primary me-2"></i>
+                Detalhes do Membro
+            </h3>
+
+            <p>
+                Informações completas sobre o membro registado.
+            </p>
+
+        </div>
+
+        <div class="detail-actions">
+
+            <a href="{% url 'members:edit' member.pk %}"
+               class="btn btn-success btn-sm fw-bold">
+
+                <i class="bi bi-pencil-square me-1"></i>
+                Editar
+
+            </a>
+
+            <a href="{% url 'members:list' %}"
+               class="btn btn-outline-secondary btn-sm fw-bold">
+
+                <i class="bi bi-arrow-left me-1"></i>
+                Voltar à Lista
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- MAIN ROW -->
+
+    <div class="row g-4">
+
+        <!-- LEFT COLUMN -->
+
+        <div class="col-lg-5">
+
+            <!-- PROFILE -->
+
+            <div class="detail-box">
+
+                <div class="detail-box-header">
+
+                    <h5>
+                        <i class="bi bi-person-badge-fill me-2"></i>
+                        Perfil do Membro
+                    </h5>
+
+                </div>
+
+                <div class="detail-box-body profile-section">
+
+                    {% if member.profile_photo %}
+
+                        <img
+                            src="{{ member.profile_photo.url }}"
+                            class="profile-photo"
+                            alt="Fotografia de {{ member.full_name }}">
+
+                    {% else %}
+
+                        <div class="profile-no-photo">
+                            <i class="bi bi-person"></i>
+                        </div>
+
+                    {% endif %}
+
+                    <div class="profile-name">
+                        {{ member.full_name|default:"-" }}
+                    </div>
+
+                    <div class="profile-id">
+                        {{ member.member_id_code|default:"-" }}
+                    </div>
+
+                    <div class="mt-3">
+
+                        {% if member.status == "Ativo" %}
+
+                            <span class="member-status status-active">
+                                <i class="bi bi-check-circle-fill"></i>
+                                Ativo
+                            </span>
+
+                        {% elif member.status == "Em Aprovação" %}
+
+                            <span class="member-status status-pending">
+                                <i class="bi bi-clock-fill"></i>
+                                Em Aprovação
+                            </span>
+
+                        {% elif member.status == "Inativo" %}
+
+                            <span class="member-status status-inactive">
+                                <i class="bi bi-x-circle-fill"></i>
+                                Inativo
+                            </span>
+
+                        {% else %}
+
+                            <span class="member-status status-default">
+                                <i class="bi bi-info-circle-fill"></i>
+                                {{ member.status|default:"-" }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- MEMBERSHIP CARD -->
+
+            <div class="detail-box">
+
+                <div class="detail-box-header">
+
+                    <h5>
+                        <i class="bi bi-credit-card-2-front-fill me-2"></i>
+                        Cartão de Membro
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm"
+                        onclick="printMembershipCard()">
+
+                        <i class="bi bi-printer me-1"></i>
+                        Imprimir Cartão
+
+                    </button>
+
+                </div>
+
+                <div class="detail-box-body">
+
+                    <div class="membership-card-wrapper">
+
+                        <!-- ACTUAL ID CARD -->
+
+                        <div class="membership-card" id="printableCard">
+
+                            <!-- HEADER -->
+
+                            <div class="card-header">
+
+                                <img
+                                    src="{% static 'main/images/logo.jpeg' %}"
+                                    class="card-logo"
+                                    alt="Logótipo OJETIL">
+
+                                <div class="card-header-text">
+
+                                    <span class="card-org-short">
+                                        OJETIL
+                                    </span>
+
+                                    <span class="card-org-full">
+                                        Organização da Juventude e dos Estudantes de Timor-Leste
+                                    </span>
+
+                                </div>
+
+                                <div class="card-membership-label">
+                                    Cartão de Membro
+                                </div>
+
+                                <!-- BANDEIRA OJETIL (MODELO EXATO SVG) -->
+
+                                <div class="card-flag">
+                                    <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <path id="detailCurveTop" d="M 27,93 Q 52.5,79 78,93" />
+                                            <path id="detailCurveBottom" d="M 27,174 Q 52.5,187 78,174" />
+                                        </defs>
+
+                                        <!-- Esquerda: Preto, Amarelo, Vermelho -->
+                                        <rect x="0" y="0" width="105" height="66.67" fill="#050505"/>
+                                        <rect x="0" y="66.67" width="105" height="66.67" fill="#fff500"/>
+                                        <rect x="0" y="133.33" width="105" height="66.67" fill="#ff1717"/>
+
+                                        <!-- Direita: Azul, Branco, Verde -->
+                                        <rect x="105" y="0" width="195" height="66.67" fill="#4298ed"/>
+                                        <rect x="105" y="66.67" width="195" height="66.67" fill="#ffffff"/>
+                                        <rect x="105" y="133.33" width="195" height="66.67" fill="#168b00"/>
+
+                                        <!-- Estrela Branca -->
+                                        <polygon points="52.5,8 59.5,27 79.5,27 63.5,39 69.5,58 52.5,46.5 35.5,58 41.5,39 25.5,27 45.5,27" fill="#ffffff"/>
+
+                                        <!-- Texto OJETIL -->
+                                        <text x="202.5" y="114" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="900" fill="#000000" text-anchor="middle" letter-spacing="1">OJETIL</text>
+
+                                        <!-- Fita Superior -->
+                                        <polygon points="27,89 15,96 20,101 14,106 27,102" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                        <polygon points="78,89 90,96 85,101 91,106 78,102" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                        <path d="M 24,87 Q 52.5,72 81,87 L 81,100 Q 52.5,85 24,100 Z" fill="#ffffff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                        <text font-family="Arial, Helvetica, sans-serif" font-size="5.6" font-weight="900" fill="#000000" letter-spacing="0.15">
+                                            <textPath href="#detailCurveTop" startOffset="50%" text-anchor="middle">SABER PARA SERVIR</textPath>
+                                        </text>
+
+                                        <!-- Emblema Central Cruzado (Enxada + Lapizeira) -->
+                                        <g>
+                                            <path d="M 33,108 Q 56,125 81,148 L 78,151 Q 53,128 30,111 Z" fill="#8b3a2b" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                            <polygon points="35,103 25,115 35,127 42,113" fill="#8e8e8e" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                        </g>
+                                        <g transform="translate(53, 128) rotate(42)">
+                                            <rect x="-4" y="-26" width="8" height="42" rx="1" fill="#707070" stroke="#000" stroke-width="1.3"/>
+                                            <path d="M 4,-22 L 7,-22 L 7,-4 L 4,-4" fill="none" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                            <line x1="-4" y1="-14" x2="4" y2="-14" stroke="#000" stroke-width="1.3"/>
+                                            <polygon points="-4,16 4,16 1.5,25 -1.5,25" fill="#9e9e9e" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                            <line x1="0" y1="25" x2="0" y2="29" stroke="#000" stroke-width="1.4" stroke-linecap="round"/>
+                                        </g>
+
+                                        <!-- Fita Inferior -->
+                                        <polygon points="27,172 15,165 20,160 14,155 27,159" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                        <polygon points="78,172 90,165 85,160 91,155 78,159" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                        <path d="M 24,162 Q 52.5,176 81,162 L 81,175 Q 52.5,189 24,175 Z" fill="#ffffff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                        <text font-family="Arial, Helvetica, sans-serif" font-size="6.4" font-weight="900" fill="#000000" letter-spacing="0.2">
+                                            <textPath href="#detailCurveBottom" startOffset="50%" text-anchor="middle">PÁTRIA - POVO</textPath>
+                                        </text>
+                                    </svg>
+                                </div>
+
+                            </div>
+
+
+                            <!-- CARD CONTENT -->
+
+                            <div class="card-content">
+
+                                <!-- MEMBER PHOTO -->
+
+                                {% if member.profile_photo %}
+
+                                    <img
+                                        src="{{ member.profile_photo.url }}"
+                                        class="card-photo"
+                                        alt="Fotografia de {{ member.full_name }}">
+
+                                {% else %}
+
+                                    <div class="card-photo-empty">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+
+                                {% endif %}
+
+
+                                <!-- MEMBER DETAILS -->
+
+                                <div class="card-details">
+
+                                    <div class="card-details-title">
+                                        Informações do Membro
+                                    </div>
+
+                                    <!-- NAME -->
+
+                                    <div class="card-row">
+
+                                        <div class="card-label">
+                                            Nome
+                                        </div>
+
+                                        <div
+                                            class="card-value"
+                                            title="{{ member.full_name }}">
+
+                                            {{ member.full_name|default:"-" }}
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- ID -->
+
+                                    <div class="card-row">
+
+                                        <div class="card-label">
+                                            ID
+                                        </div>
+
+                                        <div
+                                            class="card-value card-id"
+                                            title="{{ member.member_id_code }}">
+
+                                            {{ member.member_id_code|default:"-" }}
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- POSITION -->
+
+                                    <div class="card-row">
+
+                                        <div class="card-label">
+                                            Cargo
+                                        </div>
+
+                                        <div
+                                            class="card-value"
+                                            title="{{ member.position }}">
+
+                                            {{ member.position|default:"Membro" }}
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- MUNICIPALITY: SHOW NAME, NOT ID -->
+
+                                    <div class="card-row">
+
+                                        <div class="card-label">
+                                            Município
+                                        </div>
+
+                                        <div
+                                            class="card-value"
+                                            title="{{ member.district.name|default:'-' }}">
+
+                                            {{ member.district.name|default:"-" }}
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- ISSUE DATE -->
+
+                                    <div class="card-row">
+
+                                        <div class="card-label">
+                                            Emissão
+                                        </div>
+
+                                        <div class="card-value">
+
+                                            {% if member.registration_date %}
+                                                {{ member.registration_date|date:"d/m/Y" }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- QR CODE -->
+
+                                <div class="card-qr-wrapper">
+                                    {% with qr_val=member.member_id_code|default:member.full_name|default:"OJETIL" %}
+                                        <img
+                                            src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ qr_val|urlencode }}"
+                                            class="card-qr"
+                                            alt="QR Code {{ qr_val }}"
+                                            data-qr-text="{{ qr_val }}"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block'; drawFallbackQR(this.nextElementSibling, this.dataset.qrText);">
+                                        <canvas class="card-qr-fallback" width="120" height="120"></canvas>
+                                    {% endwith %}
+
+                                    <div class="card-qr-label">
+                                        Ler para verificar
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                            <!-- FOOTER -->
+
+                            <div class="card-footer">
+
+                                <span class="card-motto">
+                                    Saber para Servir
+                                </span>
+
+                                <span class="card-footer-right">
+                                    OJETIL • Timor-Leste
+                                </span>
+
+                            </div>
+
+
+                            <!-- BOTTOM COLORS -->
+
+                            <div class="card-color-strip">
+
+                                <div class="card-color-black"></div>
+                                <div class="card-color-red"></div>
+                                <div class="card-color-yellow"></div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT COLUMN -->
+
+        <div class="col-lg-7">
+
+            <!-- PERSONAL INFORMATION -->
+
+            <div class="detail-box">
+
+                <div class="detail-box-header">
+
+                    <h5>
+                        <i class="bi bi-person-lines-fill me-2"></i>
+                        Informações Pessoais
+                    </h5>
+
+                </div>
+
+                <div class="detail-box-body p-0">
+
+                    <table class="info-table">
+
+                        <tr>
+                            <td class="info-label">Nome Completo</td>
+                            <td class="info-value fw-semibold">
+                                {{ member.full_name|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Código</td>
+                            <td class="info-value fw-semibold">
+                                {{ member.codigo|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">N.º de ID do Membro</td>
+                            <td class="info-value">
+
+                                {% if member.member_id_code %}
+
+                                    <span class="badge bg-primary">
+                                        {{ member.member_id_code }}
+                                    </span>
+
+                                {% else %}
+                                    -
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Género</td>
+                            <td class="info-value">
+                                {{ member.gender|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Data de Nascimento</td>
+                            <td class="info-value">
+
+                                {% if member.date_of_birth %}
+                                    {{ member.date_of_birth|date:"d/m/Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Local de Nascimento</td>
+                            <td class="info-value">
+                                {{ member.place_of_birth|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">N.º do BI / Eleitoral</td>
+                            <td class="info-value">
+                                {{ member.national_id|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Número de Telemóvel</td>
+                            <td class="info-value">
+                                {{ member.phone_number|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Correio Eletrónico</td>
+                            <td class="info-value">
+                                {{ member.email|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Morada</td>
+                            <td class="info-value">
+                                {{ member.address|default:"-" }}
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- ORGANIZATIONAL INFORMATION -->
+
+            <div class="detail-box">
+
+                <div class="detail-box-header">
+
+                    <h5>
+                        <i class="bi bi-diagram-3-fill me-2"></i>
+                        Informações Organizacionais
+                    </h5>
+
+                </div>
+
+                <div class="detail-box-body p-0">
+
+                    <table class="info-table">
+
+                        <tr>
+                            <td class="info-label">Cargo / Posição</td>
+                            <td class="info-value">
+                                {{ member.position|default:"Membro" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Município</td>
+                            <td class="info-value">
+                                {{ member.district.name|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Tipo de Membro</td>
+                            <td class="info-value">
+                                {{ member.membership_type|default:"-" }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Estado do Registo</td>
+
+                            <td class="info-value">
+
+                                {% if member.status == "Ativo" %}
+
+                                    <span class="member-status status-active">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Ativo
+                                    </span>
+
+                                {% elif member.status == "Em Aprovação" %}
+
+                                    <span class="member-status status-pending">
+                                        <i class="bi bi-clock-fill"></i>
+                                        Em Aprovação
+                                    </span>
+
+                                {% elif member.status == "Inativo" %}
+
+                                    <span class="member-status status-inactive">
+                                        <i class="bi bi-x-circle-fill"></i>
+                                        Inativo
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="member-status status-default">
+                                        <i class="bi bi-info-circle-fill"></i>
+                                        {{ member.status|default:"-" }}
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="info-label">Data de Registo</td>
+
+                            <td class="info-value">
+
+                                {% if member.registration_date %}
+                                    {{ member.registration_date|date:"d/m/Y" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- DOCUMENTO DE APOIO -->
+            {% if member.supporting_document %}
+            <div class="detail-box">
+                <div class="detail-box-header">
+                    <h5>
+                        <i class="bi bi-file-earmark-text-fill me-2"></i>
+                        Documento de Apoio
+                    </h5>
+                </div>
+                <div class="detail-box-body">
+                    <div class="document-box d-flex justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="document-icon">
+                                <i class="bi bi-file-earmark-check"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold small">Ficheiro Anexado</div>
+                                <small class="text-muted">{{ member.supporting_document.name }}</small>
+                            </div>
+                        </div>
+                        <a href="{{ member.supporting_document.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-eye me-1"></i> Ver
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+function drawFallbackQR(canvas, text) {
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const size = canvas.width;
+    const cells = 21;
+    const cellSize = size / cells;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+
+    let hash = 2166136261;
+    const str = String(text || "OJETIL");
+    for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+
+    ctx.fillStyle = "#111111";
+
+    function drawFinder(ox, oy) {
+        ctx.fillRect(ox * cellSize, oy * cellSize, 7 * cellSize, 7 * cellSize);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect((ox + 1) * cellSize, (oy + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+        ctx.fillStyle = "#111111";
+        ctx.fillRect((ox + 2) * cellSize, (oy + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+    }
+
+    drawFinder(0, 0);
+    drawFinder(cells - 7, 0);
+    drawFinder(0, cells - 7);
+
+    for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+            const inTopLeft = r < 8 && c < 8;
+            const inTopRight = r < 8 && c >= cells - 8;
+            const inBottomLeft = r >= cells - 8 && c < 8;
+            if (inTopLeft || inTopRight || inBottomLeft) continue;
+
+            const bit = ((hash >>> ((r * cells + c) % 24)) ^ (r * 31 + c * 17)) & 1;
+            if (bit) {
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize + 0.3, cellSize + 0.3);
+            }
+        }
+    }
+}
+
+function printMembershipCard() {
+    window.print();
+}
+</script>
+
+{% endblock %}

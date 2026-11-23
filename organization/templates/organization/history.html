@@ -1,0 +1,535 @@
+
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<style>
+/* ================= HISTORY PAGE ================= */
+.history-page {
+    font-size: 13px;
+    color: #1f2a44;
+    padding: 10px 0;
+}
+
+.history-page *,
+.history-page *::before,
+.history-page *::after {
+    box-sizing: border-box;
+}
+
+.history-page a {
+    text-decoration: none;
+}
+
+/* HEADER */
+.history-page .h-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.history-page .h-logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: #e3edff;
+    color: #1764ed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    flex-shrink: 0;
+}
+
+.history-page .h-title h2 {
+    margin: 0;
+    font-size: 21px;
+    color: #0b2a5b;
+    font-weight: 700;
+}
+
+.history-page .h-title p {
+    margin: 3px 0 0;
+    color: #51607f;
+    font-size: 12.5px;
+}
+
+.history-page .h-crumb {
+    font-size: 11.5px;
+    color: #7a88a6;
+    margin-top: 3px;
+}
+
+/* STATISTICS */
+.history-page .h-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.history-page .h-stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: 1px solid;
+}
+
+.history-page .h-sico {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+}
+
+.history-page .h-stat b {
+    display: block;
+    font-size: 24px;
+    line-height: 1.2;
+    color: #0b2a5b;
+}
+
+.history-page .h-stat span {
+    font-size: 12px;
+    color: #44526f;
+}
+
+.history-page .s-blue {
+    background: #e8f0ff;
+    border-color: #c9dbff;
+}
+
+.history-page .s-green {
+    background: #e6f6ec;
+    border-color: #bfe6cd;
+}
+
+.history-page .s-orange {
+    background: #fff3e0;
+    border-color: #f6d9a8;
+}
+
+.history-page .s-purple {
+    background: #f0e9ff;
+    border-color: #d9c8ff;
+}
+
+/* MAIN CARD */
+.history-page .h-card {
+    background: #fff;
+    border: 1px solid #d9e2f2;
+    border-radius: 10px;
+    padding: 14px;
+}
+
+/* TOOLS */
+.history-page .h-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.history-page .h-search {
+    display: flex;
+}
+
+.history-page .h-search input {
+    width: 260px;
+    border: 1px solid #cdd8ee;
+    border-right: 0;
+    border-radius: 6px 0 0 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    outline: none;
+}
+
+.history-page .h-search input:focus {
+    border-color: #1764ed;
+}
+
+.history-page .h-search button {
+    border: 0;
+    background: #1764ed;
+    color: #fff;
+    border-radius: 0 6px 6px 0;
+    padding: 0 13px;
+    cursor: pointer;
+}
+
+.history-page .h-add {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #187a45;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.history-page .h-add:hover {
+    background: #126237;
+    color: #fff;
+}
+
+/* TABLE */
+.history-page .h-wrap {
+    overflow-x: auto;
+}
+
+.history-page .h-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+.history-page .h-tbl thead th {
+    background: #f3f6fc;
+    color: #2c3b5e;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 10px;
+    border-bottom: 1px solid #e1e8f5;
+    white-space: nowrap;
+}
+
+.history-page .h-tbl tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #eef2fa;
+    vertical-align: middle;
+    font-size: 12.5px;
+}
+
+.history-page .h-tbl tbody tr:hover td {
+    background: #f8faff;
+}
+
+.history-page .h-no {
+    width: 50px;
+    color: #51607f;
+}
+
+.history-page .h-date {
+    white-space: nowrap;
+    color: #44526f;
+    width: 120px;
+}
+
+.history-page .h-name {
+    font-weight: 600;
+    color: #12203f;
+    min-width: 170px;
+}
+
+.history-page .h-desc {
+    color: #51607f;
+    line-height: 1.5;
+    min-width: 250px;
+}
+
+.history-page .h-act {
+    text-align: center;
+    white-space: nowrap;
+    width: 170px;
+}
+
+.history-page .h-ab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 10px;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 11.5px;
+    font-weight: 600;
+    margin: 2px;
+}
+
+.history-page .h-edit {
+    background: #1764ed;
+}
+
+.history-page .h-edit:hover {
+    background: #0f4fc4;
+    color: #fff;
+}
+
+.history-page .h-delete {
+    background: #e03131;
+}
+
+.history-page .h-delete:hover {
+    background: #bf2020;
+    color: #fff;
+}
+
+.history-page .h-empty {
+    text-align: center;
+    color: #7a88a6;
+    padding: 30px !important;
+}
+
+/* FOOTER */
+.history-page .h-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    color: #51607f;
+    font-size: 12px;
+}
+
+@media(max-width: 600px) {
+    .history-page .h-search input {
+        width: 190px;
+    }
+
+    .history-page .h-title h2 {
+        font-size: 18px;
+    }
+}
+</style>
+
+<div class="history-page">
+
+    <!-- HEADER -->
+    <div class="h-title">
+        <div class="h-logo">
+            <i class="bi bi-clock-history"></i>
+        </div>
+
+        <div>
+            <h2>Histórico da Estrutura</h2>
+            <p>Gerir no haree istóriku mudansa iha estrutura organizasaun OJETIL.</p>
+
+            <div class="h-crumb">
+                Painel de Controlo &gt; Organização &gt; Histórico
+            </div>
+        </div>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="h-stats">
+
+        <div class="h-stat s-blue">
+            <div class="h-sico">
+                <i class="bi bi-clock-history text-primary"></i>
+            </div>
+            <div>
+                <b>{{ histories.count }}</b>
+                <span>Total de Históricos</span>
+            </div>
+        </div>
+
+        <div class="h-stat s-green">
+            <div class="h-sico">
+                <i class="bi bi-calendar-check text-success"></i>
+            </div>
+            <div>
+                <b id="hThisYear">0</b>
+                <span>Registos deste Ano</span>
+            </div>
+        </div>
+
+        <div class="h-stat s-orange">
+            <div class="h-sico">
+                <i class="bi bi-calendar-event text-warning"></i>
+            </div>
+            <div>
+                <b id="hThisMonth">0</b>
+                <span>Registos deste Mês</span>
+            </div>
+        </div>
+
+        <div class="h-stat s-purple">
+            <div class="h-sico">
+                <i class="bi bi-journal-text" style="color:#6d28d9"></i>
+            </div>
+            <div>
+                <b id="hVisible">{{ histories.count }}</b>
+                <span>Registos Apresentados</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="h-card">
+
+        <!-- TOOLS -->
+        <div class="h-tools">
+
+            <div class="h-search">
+                <input
+                    type="text"
+                    id="hSearch"
+                    placeholder="Pesquisar histórico..."
+                >
+
+                <button type="button" title="Pesquisar">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+
+            <a href="{% url 'organization:history_add' %}" class="h-add">
+                <i class="bi bi-plus-lg"></i>
+                Adicionar Histórico
+            </a>
+
+        </div>
+
+        <!-- TABLE -->
+        <div class="h-wrap">
+
+            <table class="h-tbl" id="hTable">
+
+                <thead>
+                    <tr>
+                        <th class="h-no">N.º</th>
+                        <th>Data</th>
+                        <th>Título</th>
+                        <th>Descrição</th>
+                        <th class="h-act">Ações</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for h in histories %}
+
+                    <tr data-year="{{ h.change_date|date:'Y' }}"
+                        data-month="{{ h.change_date|date:'Y-m' }}">
+
+                        <td class="h-no">{{ forloop.counter }}</td>
+
+                        <td class="h-date">
+                            <i class="bi bi-calendar3 me-1 text-primary"></i>
+                            {{ h.change_date|date:"d/m/Y" }}
+                        </td>
+
+                        <td class="h-name">
+                            {{ h.title }}
+                        </td>
+
+                        <td class="h-desc">
+                            {{ h.description|default:"-"|truncatechars:100 }}
+                        </td>
+
+                        <td class="h-act">
+
+                            <a href="{% url 'organization:history_edit' h.pk %}"
+                               class="h-ab h-edit"
+                               title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                                Editar
+                            </a>
+
+                            <a href="{% url 'organization:history_delete' h.pk %}"
+                               class="h-ab h-delete"
+                               title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                                Eliminar
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="5" class="h-empty">
+                            <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                            Ainda não existe nenhum histórico registado.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="h-foot">
+            <div>
+                Total de registos: {{ histories.count }}
+            </div>
+
+            <div>
+                <i class="bi bi-info-circle me-1"></i>
+                Histórico de alterações da estrutura OJETIL
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+(function () {
+
+    const search = document.getElementById("hSearch");
+    const rows = Array.from(
+        document.querySelectorAll("#hTable tbody tr[data-year]")
+    );
+
+    const now = new Date();
+    const currentYear = String(now.getFullYear());
+    const currentMonth =
+        currentYear + "-" + String(now.getMonth() + 1).padStart(2, "0");
+
+    let yearCount = 0;
+    let monthCount = 0;
+
+    rows.forEach(function (row) {
+        if (row.dataset.year === currentYear) {
+            yearCount++;
+        }
+
+        if (row.dataset.month === currentMonth) {
+            monthCount++;
+        }
+    });
+
+    document.getElementById("hThisYear").textContent = yearCount;
+    document.getElementById("hThisMonth").textContent = monthCount;
+
+    search.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
+        let visible = 0;
+
+        rows.forEach(function (row) {
+            const match = row.textContent.toLowerCase().includes(query);
+
+            row.style.display = match ? "" : "none";
+
+            if (match) {
+                visible++;
+            }
+        });
+
+        document.getElementById("hVisible").textContent = visible;
+    });
+
+})();
+</script>
+
+{% endblock %}

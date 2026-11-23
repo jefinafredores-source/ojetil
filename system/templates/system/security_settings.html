@@ -1,0 +1,194 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Configurações Gerais</h3>
+
+        <a href="{% url 'system:dashboard' %}"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar ao Painel de Controlo
+        </a>
+    </div>
+
+<div class="container-fluid py-4">
+
+    <div class="mb-4">
+        <h3 class="fw-bold text-primary">
+            <i class="bi bi-shield-lock-fill me-2"></i>
+            Configurações de Segurança
+        </h3>
+        <p class="text-muted">
+            Configurações de segurança e gestão de palavras-passe do sistema OJETIL.
+        </p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row g-4">
+
+        <!-- Informações da Conta -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+
+                    <div class="text-primary mb-3">
+                        <i class="bi bi-person-lock fs-1"></i>
+                    </div>
+
+                    <h5 class="fw-bold">Segurança da Conta</h5>
+
+                    <p class="text-muted">
+                        Informações sobre a conta que está a utilizar atualmente.
+                    </p>
+
+                    <hr>
+
+                    <p class="mb-2">
+                        <strong>Nome de Utilizador:</strong>
+                        {{ request.user.username }}
+                    </p>
+
+                    <p class="mb-2">
+                        <strong>E-mail:</strong>
+                        {{ request.user.email|default:"Não fornecido" }}
+                    </p>
+
+                    <p class="mb-0">
+                        <strong>Estado da Conta:</strong>
+
+                        {% if request.user.is_active %}
+                            <span class="badge bg-success">Ativa</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inativa</span>
+                        {% endif %}
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Alterar Palavra-passe -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-2">
+                        <i class="bi bi-key-fill text-primary me-2"></i>
+                        Alterar Palavra-passe
+                    </h5>
+
+                    <p class="text-muted mb-4">
+                        Altere a sua palavra-passe para proteger a sua conta.
+                    </p>
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+
+                            <div class="mb-3">
+
+                                <label class="form-label fw-semibold">
+                                    {{ field.label }}
+                                </label>
+
+                                {{ field }}
+
+                                {% if field.help_text %}
+                                    <div class="form-text">
+                                        {{ field.help_text|safe }}
+                                    </div>
+                                {% endif %}
+
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+
+                            </div>
+
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-shield-check me-2"></i>
+                            Atualizar Palavra-passe
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Recomendações de Segurança -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+
+                    <h5 class="fw-bold mb-3">
+                        <i class="bi bi-shield-check text-success me-2"></i>
+                        Recomendações de Segurança
+                    </h5>
+
+                    <div class="row g-3">
+
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded">
+                                <i class="bi bi-key text-primary fs-4"></i>
+                                <h6 class="fw-bold mt-2">
+                                    Palavra-passe Forte
+                                </h6>
+                                <small class="text-muted">
+                                    Utilize uma palavra-passe forte e não a partilhe com outras pessoas.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded">
+                                <i class="bi bi-lock text-primary fs-4"></i>
+                                <h6 class="fw-bold mt-2">
+                                    Início de Sessão Seguro
+                                </h6>
+                                <small class="text-muted">
+                                    Termine sempre a sessão quando acabar de utilizar o sistema.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-3 bg-light rounded">
+                                <i class="bi bi-person-check text-primary fs-4"></i>
+                                <h6 class="fw-bold mt-2">
+                                    Proteger a Conta
+                                </h6>
+                                <small class="text-muted">
+                                    Não partilhe o seu nome de utilizador nem a sua palavra-passe com outras pessoas.
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

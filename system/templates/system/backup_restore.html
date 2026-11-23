@@ -1,0 +1,235 @@
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Configurações Gerais</h3>
+
+        <a href="{% url 'system:dashboard' %}"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar ao Painel de Controlo
+        </a>
+    </div>
+
+    <div class="container-fluid py-4">
+
+        <div class="mb-4">
+            <h3 class="fw-bold text-primary">
+                <i class="bi bi-database-fill-gear me-2"></i>
+                Cópia de Segurança e Restauro
+            </h3>
+            <p class="text-muted">
+                Gerir as cópias de segurança e o restauro da base de dados do sistema OJETIL.
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="row g-4">
+
+            <!-- Criar Cópia de Segurança -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-4">
+
+                        <div class="mb-3 text-primary">
+                            <i class="bi bi-cloud-arrow-down-fill fs-1"></i>
+                        </div>
+
+                        <h5 class="fw-bold">Criar Cópia de Segurança da Base de Dados</h5>
+
+                        <p class="text-muted">
+                            Criar uma cópia de segurança de toda a base de dados da OJETIL.
+                        </p>
+
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <input type="hidden"
+                                   name="action"
+                                   value="backup">
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-database-down me-2"></i>
+                                Criar Cópia de Segurança Agora
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurar Base de Dados -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body p-4">
+
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-arrow-counterclockwise fs-1"></i>
+                        </div>
+
+                        <h5 class="fw-bold">Restaurar Base de Dados</h5>
+
+                        <p class="text-muted">
+                            Carregar um ficheiro de cópia de segurança para restaurar a base de dados da OJETIL.
+                        </p>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            O restauro irá substituir a base de dados atual.
+                            Os dados recentes poderão ser perdidos.
+                        </div>
+
+                        <form method="POST"
+                              enctype="multipart/form-data">
+
+                            {% csrf_token %}
+
+                            <input type="hidden"
+                                   name="action"
+                                   value="restore">
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Ficheiro de Cópia de Segurança
+                                </label>
+
+                                {{ restore_form.backup_file }}
+
+                                {% for error in restore_form.backup_file.errors %}
+                                    <div class="text-danger small">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-check mb-3">
+                                {{ restore_form.confirm_restore }}
+
+                                <label class="form-check-label">
+                                    {{ restore_form.confirm_restore.label }}
+                                </label>
+
+                                {% for error in restore_form.confirm_restore.errors %}
+                                    <div class="text-danger small">
+                                        {{ error }}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-warning"
+                                    onclick="return confirm('ATENÇÃO! O restauro irá substituir a base de dados atual. Deseja continuar?');">
+
+                                <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                Restaurar Base de Dados
+                            </button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Histórico de Cópias de Segurança -->
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+
+                    <div class="card-header bg-white py-3">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-clock-history me-2"></i>
+                            Histórico de Cópias de Segurança
+                        </h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>N.º</th>
+                                        <th>Tipo de Cópia de Segurança</th>
+                                        <th>Criada Por</th>
+                                        <th>Data e Hora</th>
+                                        <th>Tamanho do Ficheiro</th>
+                                        <th>Transferir</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+
+                                    {% for record in records %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+
+                                        <td>
+                                            {% if record.backup_type == 'manual' %}
+                                                <span class="badge bg-primary">
+                                                    Cópia de Segurança Manual
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">
+                                                    Antes do Restauro
+                                                </span>
+                                            {% endif %}
+                                        </td>
+
+                                        <td>
+                                            {{ record.created_by|default:"Sistema" }}
+                                        </td>
+
+                                        <td>
+                                            {{ record.created_at|date:"d/m/Y H:i" }}
+                                        </td>
+
+                                        <td>
+                                            {{ record.file.size|filesizeformat }}
+                                        </td>
+
+                                        <td>
+                                            {% if record.file %}
+                                                <a href="{{ record.file.url }}"
+                                                   class="btn btn-sm btn-success">
+                                                    <i class="bi bi-download"></i>
+                                                    Transferir
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6"
+                                            class="text-center text-muted py-4">
+                                            Ainda não existem cópias de segurança.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

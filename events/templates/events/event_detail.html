@@ -1,0 +1,138 @@
+
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div style="padding:25px;">
+
+    <div style="display:flex;
+                justify-content:space-between;
+                align-items:center;
+                margin-bottom:20px;">
+
+        <div>
+
+            <h2>
+                {{ event.title }}
+            </h2>
+
+            <p style="color:#777;">
+                Detalhes do Evento
+            </p>
+
+        </div>
+
+        <div>
+
+            <a
+                href="{% url 'events:event_update' event.pk %}"
+                class="btn btn-warning"
+            >
+                <i class="fas fa-edit"></i>
+                Editar
+            </a>
+
+            <a
+                href="{% url 'events:event_list' %}"
+                class="btn btn-secondary"
+            >
+                Voltar
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="card"
+         style="background:white;
+                padding:25px;
+                border-radius:8px;">
+
+        {% if event.image %}
+
+            <img
+                src="{{ event.image.url }}"
+                style="width:100%;
+                       max-height:300px;
+                       object-fit:cover;
+                       border-radius:8px;
+                       margin-bottom:20px;"
+            >
+
+        {% endif %}
+
+
+        <h3>
+            {{ event.title }}
+        </h3>
+
+
+        <p>
+            {{ event.description }}
+        </p>
+
+
+        <hr>
+
+
+        <p>
+            <strong>
+                <i class="fas fa-calendar"></i>
+                Data:
+            </strong>
+
+            {{ event.event_date|date:"d F Y" }}
+        </p>
+
+
+        <p>
+            <strong>
+                <i class="fas fa-clock"></i>
+                Horário:
+            </strong>
+
+            {{ event.start_time|time:"H:i" }}
+
+            {% if event.end_time %}
+                - {{ event.end_time|time:"H:i" }}
+            {% endif %}
+        </p>
+
+
+        <p>
+            <strong>
+                <i class="fas fa-map-marker-alt"></i>
+                Local:
+            </strong>
+
+            {{ event.location }}
+        </p>
+
+
+        <p>
+            <strong>Tipo:</strong>
+            {{ event.event_type }}
+        </p>
+
+
+        <p>
+            <strong>Estado:</strong>
+            {{ event.status }}
+        </p>
+
+
+        <p>
+            <strong>Participantes:</strong>
+
+            {{ event.participants }}
+            /
+            {{ event.max_participants }}
+
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

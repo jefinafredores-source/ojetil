@@ -1,0 +1,292 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<style>
+.export-page {
+    padding: 22px;
+    background: #f4f6f9;
+    min-height: 85vh;
+}
+.export-header, .filter-box, .preview-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.export-header h2 {
+    color: #0b2545;
+    font-weight: 700;
+}
+.export-header p { color: #6b7280; }
+.filter-grid {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+.filter-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+    color: #475569;
+}
+.filter-grid input, .filter-grid select,
+.format-select {
+    padding: 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+}
+.filter-grid input, .filter-grid select {
+    min-width: 160px;
+}
+.btn-export {
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 7px;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-search { background: #1d61e8; }
+.btn-reset { background: #6b7280; }
+.btn-download { background: #16a34a; }
+.btn-download:hover { background: #12843c; color: white; }
+.table-responsive { overflow-x: auto; }
+.export-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.export-table th {
+    background: #0b2545;
+    color: white;
+    padding: 12px;
+    text-align: left;
+}
+.export-table td {
+    padding: 11px;
+    border-bottom: 1px solid #e5e7eb;
+}
+.export-table tbody tr:hover { background: #eef4ff; }
+.export-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+@media(max-width:600px) {
+    .export-page { padding: 10px; }
+}
+</style>
+
+<div class="export-page">
+
+    <div class="export-header">
+        <h2>📁 Gestão de Exportação de Dados</h2>
+        <p>
+            Selecione os membros que pretende exportar
+            da base de dados da OJETIL.
+        </p>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filter-box">
+        <h5 class="mb-3">🔍 Pesquisar e Filtrar Dados</h5>
+
+        <form method="GET">
+            <div class="filter-grid">
+
+                <label>
+                    Pesquisar por Nome ou ID de Membro
+                    <input type="text" name="q"
+                           value="{{ q }}"
+                           placeholder="Nome ou ID...">
+                </label>
+
+                <label>
+                    Estado
+                    <select name="status">
+                        <option value="">Todos os Estados</option>
+                        <option value="Ativo"
+                            {% if status == 'Ativo' %}selected{% endif %}>
+                            Ativo
+                        </option>
+                        <option value="Em Aprovação"
+                            {% if status == 'Em Aprovação' %}selected{% endif %}>
+                            Em Aprovação
+                        </option>
+                        <option value="Inativo"
+                            {% if status == 'Inativo' %}selected{% endif %}>
+                            Inativo
+                        </option>
+                    </select>
+                </label>
+
+                <label>
+                    Data de Início do Registo
+                    <input type="date" name="date_from"
+                           value="{{ date_from }}">
+                </label>
+
+                <label>
+                    Data de Fim do Registo
+                    <input type="date" name="date_to"
+                           value="{{ date_to }}">
+                </label>
+
+                <button type="submit"
+                        class="btn-export btn-search">
+                    Filtrar
+                </button>
+
+                <a href="{% url 'report:export_data' %}"
+                   class="btn-export btn-reset">
+                    Limpar
+                </a>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- PRÉ-VISUALIZAÇÃO E EXPORTAÇÃO -->
+    <div class="preview-box">
+
+        <h5 class="mb-3">
+            📋 Pré-visualização dos Dados dos Membros
+        </h5>
+
+        <p class="text-muted">
+            Total de membros na base de dados:
+            <strong>{{ total_members }}</strong>
+            <br>
+            Membros correspondentes aos filtros:
+            <strong>{{ total_preview }}</strong>
+        </p>
+
+        <form method="POST"
+              action="{% url 'report:export_download' %}">
+
+            {% csrf_token %}
+
+            <!-- VALORES DOS FILTROS -->
+            <input type="hidden" name="q" value="{{ q }}">
+            <input type="hidden" name="status" value="{{ status }}">
+            <input type="hidden" name="date_from" value="{{ date_from }}">
+            <input type="hidden" name="date_to" value="{{ date_to }}">
+
+            <div class="table-responsive">
+
+                <table class="export-table">
+
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox"
+                                       id="selectAll"
+                                       title="Selecionar todos">
+                            </th>
+                            <th>N.º</th>
+                            <th>ID de Membro</th>
+                            <th>Nome Completo</th>
+                            <th>E-mail</th>
+                            <th>Telefone</th>
+                            <th>Estado</th>
+                            <th>Data de Registo</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for m in members %}
+                        <tr>
+
+                            <td>
+                                <input type="checkbox"
+                                       name="selected_ids"
+                                       value="{{ m.pk }}"
+                                       class="member-checkbox">
+                            </td>
+
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ m.member_id_code|default:"-" }}</td>
+                            <td>{{ m.full_name }}</td>
+                            <td>{{ m.email|default:"-" }}</td>
+                            <td>{{ m.phone_number|default:"-" }}</td>
+                            <td>{{ m.status }}</td>
+                            <td>
+                                {{ m.registration_date|date:"d/m/Y"|default:"-" }}
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="8"
+                                class="text-center text-muted p-4">
+                                Não foram encontrados membros.
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="export-footer">
+
+                <div>
+                    <label class="fw-bold mb-2">
+                        Formato do Ficheiro:
+                    </label>
+
+                    <select name="file_format"
+                            class="format-select">
+                        <option value="xlsx">Excel (.xlsx)</option>
+                        <option value="csv">CSV (.csv)</option>
+                        <option value="pdf">PDF (.pdf)</option>
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+
+                    <button type="submit"
+                            class="btn-export btn-download">
+                        <i class="fas fa-download"></i>
+                        Exportar Membros Selecionados
+                    </button>
+
+                    <button type="submit"
+                            name="export_all"
+                            value="1"
+                            class="btn-export btn-search"
+                            onclick="return confirm('Pretende exportar todos os membros que correspondem aos filtros?')">
+                        <i class="fas fa-file-export"></i>
+                        Exportar Todos os Resultados
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+document.getElementById('selectAll').addEventListener('change', function() {
+    document.querySelectorAll('.member-checkbox').forEach(function(box) {
+        box.checked = document.getElementById('selectAll').checked;
+    });
+});
+</script>
+
+{% endblock %}

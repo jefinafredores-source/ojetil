@@ -1,0 +1,573 @@
+
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<style>
+.hierarchy-page {
+    padding: 24px;
+    background: #f4f6fa;
+    min-height: 85vh;
+    color: #17365d;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hierarchy-header { margin-bottom: 22px; }
+
+.hierarchy-header h2 {
+    font-size: 25px;
+    font-weight: 750;
+    margin: 0 0 6px;
+}
+
+.hierarchy-header p {
+    color: #64748b;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ---------- Abas ---------- */
+.hierarchy-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 20px;
+}
+
+.hierarchy-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 16px;
+    text-decoration: none;
+    background: #fff;
+    color: #475569;
+    border: 1px solid #dce5f0;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 650;
+    transition: .2s ease;
+}
+
+.hierarchy-tabs a:hover,
+.hierarchy-tabs a.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+/* ---------- Painel ---------- */
+.hierarchy-panel {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(15, 23, 42, .04);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hierarchy-heading {
+    text-align: center;
+    padding: 25px 15px 20px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.hierarchy-heading h3 {
+    color: #17365d;
+    font-size: 20px;
+    font-weight: 750;
+    margin: 0 0 7px;
+}
+
+.hierarchy-heading p {
+    color: #64748b;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* ---------- Barra de ferramentas de zoom ---------- */
+.hierarchy-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px 0;
+}
+
+.hierarchy-toolbar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px;
+    font-size: 12px;
+    font-weight: 650;
+    background: #fff;
+    color: #475569;
+    cursor: pointer;
+    border: 1px solid #dce5f0;
+    border-radius: 8px;
+}
+
+.hierarchy-toolbar button:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+}
+
+#zoomLabel {
+    font-size: 12px;
+    color: #64748b;
+    min-width: 40px;
+    text-align: center;
+}
+
+/* ---------- Área do organograma ---------- */
+.hierarchy-scroll {
+    --line: #b8c6da;
+    --gap: 30px;
+    width: 100%;
+    overflow: auto;
+    padding: 30px 28px 55px;
+    cursor: grab;
+    background:
+        radial-gradient(circle, #dfe6f1 1px, transparent 1px) 0 0 / 22px 22px,
+        #fbfcfe;
+}
+
+.hierarchy-scroll.dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+/* ---------- Árvore hierárquica ---------- */
+.org-tree,
+.org-tree ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.org-tree {
+    display: flex;
+    width: max-content;
+    margin: 0 auto;
+}
+
+.org-tree ul {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding-top: var(--gap);
+}
+
+.org-tree ul::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: var(--gap);
+    border-left: 2px solid var(--line);
+}
+
+.org-tree li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--gap) 10px 0;
+}
+
+.org-tree > li { padding-top: 0; }
+
+.org-tree li::before,
+.org-tree li::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: var(--gap);
+    border-top: 2px solid var(--line);
+}
+
+.org-tree li::before { right: 50%; }
+
+.org-tree li::after {
+    left: 50%;
+    border-left: 2px solid var(--line);
+}
+
+.org-tree > li::before,
+.org-tree > li::after { display: none; }
+
+.org-tree li:only-child { padding-top: 0; }
+
+.org-tree li:only-child::before,
+.org-tree li:only-child::after { display: none; }
+
+.org-tree li:first-child::before,
+.org-tree li:last-child::after { border-top: 0; }
+
+.org-tree li:last-child::before {
+    border-right: 2px solid var(--line);
+    border-radius: 0 8px 0 0;
+}
+
+.org-tree li:first-child::after { border-radius: 8px 0 0 0; }
+
+/* Ocultar os ramos */
+.org-tree li.collapsed > ul { display: none; }
+
+/* ---------- Cartão de cargo ---------- */
+.position-card {
+    position: relative;
+    width: 230px;
+    box-sizing: border-box;
+    padding: 14px 14px 18px;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-top: 4px solid var(--pos-color, #2563eb);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .07);
+    transition: box-shadow .2s ease;
+}
+
+.position-card:hover { box-shadow: 0 10px 26px rgba(15, 23, 42, .15); }
+
+/* Cartão do nível superior (Presidente) */
+.org-tree > li > .position-card {
+    width: 270px;
+    padding: 18px 18px 22px;
+    box-shadow: 0 8px 24px rgba(37, 99, 235, .16);
+}
+
+.org-tree > li > .position-card h4 { font-size: 16px; }
+
+.org-tree > li > .position-card .avatar {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+    font-size: 18px;
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 800;
+    color: #17365d;
+    background: color-mix(in srgb, var(--pos-color, #2563eb) 16%, #fff);
+    border: 2px solid color-mix(in srgb, var(--pos-color, #2563eb) 45%, #fff);
+}
+
+.card-info { min-width: 0; }
+
+.position-card h4 {
+    margin: 0 0 3px;
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 750;
+    color: #17365d;
+    overflow-wrap: anywhere;
+}
+
+.person-name {
+    display: block;
+    font-size: 12px;
+    line-height: 1.35;
+    color: #64748b;
+    overflow-wrap: anywhere;
+}
+
+.card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 13px;
+    padding-top: 11px;
+    border-top: 1px dashed #e5ebf3;
+}
+
+.unit {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.status {
+    display: inline-block;
+    flex: none;
+    background: #dcfce7;
+    color: #15803d;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.inactive { opacity: .75; }
+
+.inactive .status {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Botão para expandir/recolher os ramos */
+.toggle {
+    position: absolute;
+    left: 50%;
+    bottom: -12px;
+    transform: translateX(-50%);
+    min-width: 26px;
+    height: 24px;
+    padding: 0 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 750;
+    color: #475569;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.toggle:hover {
+    border-color: var(--pos-color, #2563eb);
+    color: var(--pos-color, #2563eb);
+}
+
+.org-tree li.collapsed > .position-card .toggle {
+    background: var(--pos-color, #2563eb);
+    border-color: var(--pos-color, #2563eb);
+    color: #fff;
+}
+
+/* ---------- Estado vazio ---------- */
+.hierarchy-empty {
+    padding: 60px 20px;
+    text-align: center;
+    color: #64748b;
+}
+
+.hierarchy-empty i {
+    display: block;
+    color: #94a3b8;
+    margin-bottom: 15px;
+}
+
+.hierarchy-empty h4 {
+    color: #334155;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* ---------- Rodapé ---------- */
+.hierarchy-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 17px 22px;
+    border-top: 1px solid #eef2f7;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.hierarchy-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.hierarchy-stat strong { color: #17365d; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 768px) {
+    .hierarchy-page { padding: 12px; }
+
+    .hierarchy-header h2 { font-size: 21px; }
+
+    .hierarchy-scroll { padding: 25px 12px 40px; }
+
+    .position-card { width: 200px; }
+
+    .org-tree > li > .position-card { width: 230px; }
+
+    .org-tree li {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .hierarchy-heading h3 { font-size: 17px; }
+}
+</style>
+
+<div class="hierarchy-page">
+
+    <div class="hierarchy-header">
+        <h2><i class="bi bi-diagram-3"></i> Hierarquia de Cargos</h2>
+        <p>Hierarquia dos cargos da organização OJETIL.</p>
+    </div>
+
+    <div class="hierarchy-tabs">
+        <a href="{% url 'organization:positions' %}">
+            <i class="bi bi-list-ul"></i> Lista de Cargos
+        </a>
+
+        {% comment %} <a href="#">
+            <i class="bi bi-tags"></i> Categorias de Cargos
+        </a> {% endcomment %}
+
+        <a href="{% url 'organization:positional_hierarchy' %}" class="active">
+            <i class="bi bi-diagram-3"></i> Hierarquia de Cargos
+        </a>
+    </div>
+
+    <div class="hierarchy-panel">
+
+        <div class="hierarchy-heading">
+            <h3>ESTRUTURA ORGANIZACIONAL</h3>
+            <p>Hierarquia de cargos e responsabilidades</p>
+        </div>
+
+        {% if root_positions %}
+            <div class="hierarchy-toolbar">
+                <button type="button" data-zoom="out" title="Diminuir">
+                    <i class="bi bi-zoom-out"></i>
+                </button>
+
+                <span id="zoomLabel">100%</span>
+
+                <button type="button" data-zoom="in" title="Aumentar">
+                    <i class="bi bi-zoom-in"></i>
+                </button>
+
+                <button type="button" data-zoom="fit">
+                    <i class="bi bi-arrows-angle-contract"></i> Ajustar
+                </button>
+
+                <button type="button" data-zoom="reset">100%</button>
+            </div>
+
+            <div class="hierarchy-scroll" id="orgScroll">
+                <ul class="org-tree" id="orgTree">
+                    {% for position in root_positions %}
+                        {% include "organization/node.html" with position=position %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <div class="hierarchy-empty">
+                <i class="bi bi-diagram-3" style="font-size:42px"></i>
+                <h4>Ainda não existe nenhuma hierarquia</h4>
+                <p>
+                    Verifique a relação de hierarquia (Parent) na lista de cargos
+                    para organizar os cargos.
+                </p>
+            </div>
+        {% endif %}
+
+        <div class="hierarchy-footer">
+            <div class="hierarchy-stat">
+                <i class="bi bi-building"></i>
+                Total de Unidades: <strong>{{ units.count }}</strong>
+            </div>
+
+            <div class="hierarchy-stat">
+                <i class="bi bi-person-vcard"></i>
+                Total de Cargos: <strong>{{ positions|length }}</strong>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    const sc = document.getElementById('orgScroll');
+    const tree = document.getElementById('orgTree');
+    const label = document.getElementById('zoomLabel');
+    if (!sc || !tree) return;
+
+    let z = 1;
+
+    const apply = () => {
+        tree.style.zoom = z;
+        label.textContent = Math.round(z * 100) + '%';
+    };
+
+    // Zoom
+    document.querySelectorAll('[data-zoom]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const a = btn.dataset.zoom;
+
+            if (a === 'in') z = Math.min(1.5, z + 0.1);
+            else if (a === 'out') z = Math.max(0.4, z - 0.1);
+            else if (a === 'fit') {
+                tree.style.zoom = 1;
+                z = Math.min(1, (sc.clientWidth - 56) / tree.offsetWidth);
+            } else {
+                z = 1;
+            }
+
+            apply();
+        });
+    });
+
+    // Expandir/recolher os ramos
+    tree.addEventListener('click', e => {
+        const b = e.target.closest('.toggle');
+        if (b) b.closest('li').classList.toggle('collapsed');
+    });
+
+    // Arrastar para mover a posição
+    let down = false, sx, sy, sl, st;
+
+    sc.addEventListener('mousedown', e => {
+        if (e.target.closest('button, a')) return;
+
+        down = true;
+        sc.classList.add('dragging');
+        sx = e.pageX;
+        sy = e.pageY;
+        sl = sc.scrollLeft;
+        st = sc.scrollTop;
+    });
+
+    window.addEventListener('mouseup', () => {
+        down = false;
+        sc.classList.remove('dragging');
+    });
+
+    window.addEventListener('mousemove', e => {
+        if (!down) return;
+
+        sc.scrollLeft = sl - (e.pageX - sx);
+        sc.scrollTop = st - (e.pageY - sy);
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+
+<li class="chart-node">
+    <div class="position-card {% if not position.is_active %}inactive{% endif %}"
+         style="--pos-color: {{ position.color|default:'#2563eb' }}">
+
+        <div class="card-status">
+            <span class="dot"></span>
+            <span class="status">
+                {% if position.is_active %}Active{% else %}Inactive{% endif %}
+            </span>
+        </div>
+
+        <h4>{{ position.title }}</h4>
+
+        <div class="person">
+            <i class="bi bi-person-circle"></i>
+            {{ position.person_name|default:"Seidauk atribui" }}
+        </div>
+
+        <div class="unit">
+            <i class="bi bi-diagram-3"></i>
+            {{ position.unit.name|default:"La iha unidade" }}
+        </div>
+    </div>
+
+    {% if position.chart_children %}
+        <ul>
+            {% for child in position.chart_children %}
+                {% include "organization/node.html" with position=child %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

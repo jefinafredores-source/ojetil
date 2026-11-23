@@ -1,0 +1,309 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<style>
+/* ===================== ORGANIZATION STRUCTURE (FIXED LAYOUT) ===================== */
+.org-page { font-size:14px; color:#222; --line:#2f6fdb; }
+.org-page *, .org-page *::before, .org-page *::after { box-sizing:border-box; }
+.org-page a { text-decoration:none; }
+
+.org-page .o-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+.org-page .o-head h2 { margin:0 0 2px; font-size:22px; }
+.org-page .o-head p { margin:0; color:#667; }
+.org-page .o-actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+.org-page .o-btn { display:inline-block; border:0; border-radius:6px; padding:8px 14px; font-size:13px; cursor:pointer; color:#fff; line-height:1.2; }
+.org-page .o-btn-blue { background:#1764ed; }
+.org-page .o-btn-green { background:#1f9d55; }
+.org-page .o-btn-orange { background:#f08c00; }
+.org-page .o-btn-purple { background:#7c3aed; }
+.org-page .o-btn-red { background:#e03131; }
+.org-page .o-btn-block { display:block; width:100%; text-align:center; margin-bottom:6px; }
+
+.org-page .o-tabs { display:flex; flex-wrap:wrap; gap:2px; }
+.org-page .o-tabs a { padding:8px 16px; border:1px solid #cdd8ee; border-bottom:0; background:#fff; color:#333; border-radius:6px 6px 0 0; }
+.org-page .o-tabs a.on { background:#1764ed; color:#fff; border-color:#1764ed; }
+
+.org-page .o-grid { display:grid; grid-template-columns:3fr 1fr; gap:16px; align-items:start; }
+.org-page .o-panel { background:#fff; border:1px solid #d9e2f2; border-radius:10px; padding:16px; margin-bottom:14px; }
+.org-page .o-panel h6 { margin:0 0 10px; font-size:14px; }
+.org-page .o-tabbed { border-top-left-radius:0; }
+.org-page .o-muted { color:#778; }
+@media (max-width:900px) { .org-page .o-grid { grid-template-columns:1fr; } }
+
+.org-page .o-chart-title { text-align:center; margin:0; font-size:18px; color:#0b2a5b; font-weight:700; }
+.org-page .o-chart-sub { text-align:center; color:#667; margin:0 0 8px; font-size:12px; }
+
+/* ---------- Chart ---------- */
+.org-page .o-scroll { overflow-x:auto; padding:10px 0 4px; }
+.org-page .o-tree, .org-page .o-tree ul { display:flex; justify-content:center; margin:0; padding:0; list-style:none; position:relative; }
+.org-page .o-tree ul { padding-top:22px; }
+.org-page .o-tree ul::before { content:""; position:absolute; top:0; left:50%; border-left:2px solid var(--line); height:22px; }
+.org-page .o-tree li { position:relative; padding:22px 8px 0; text-align:center; }
+.org-page .o-tree li::before, .org-page .o-tree li::after { content:""; position:absolute; top:0; right:50%; width:50%; height:22px; border-top:2px solid var(--line); }
+.org-page .o-tree li::after { right:auto; left:50%; border-left:2px solid var(--line); }
+.org-page .o-tree li:only-child { padding-top:0; }
+.org-page .o-tree li:only-child::before, .org-page .o-tree li:only-child::after { display:none; }
+.org-page .o-tree li:first-child::before, .org-page .o-tree li:last-child::after { border:0; }
+.org-page .o-tree li:last-child::before { border-right:2px solid var(--line); border-radius:0 6px 0 0; }
+.org-page .o-tree li:first-child::after { border-radius:6px 0 0 0; }
+.org-page .o-tree > li { padding-top:0; }
+.org-page .o-tree > li::before, .org-page .o-tree > li::after { display:none; }
+
+.org-page .o-nodewrap { position:relative; display:inline-block; }
+.org-page .o-node,
+.org-page .o-side { --c:#1764ed; display:inline-flex; align-items:center; gap:8px; min-width:185px; padding:8px 12px; border:2px solid var(--c); border-radius:8px; background:#fff; background:color-mix(in srgb, var(--c) 10%, #fff); text-align:left; }
+.org-page .o-ico { width:30px; height:30px; border-radius:50%; background:var(--c); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+.org-page .o-txt { display:block; line-height:1.25; }
+.org-page .o-txt strong { display:block; font-size:12px; text-transform:uppercase; color:var(--c); }
+.org-page .o-txt small { display:block; font-size:11px; color:#555; }
+
+.org-page .o-side { position:absolute; left:100%; top:50%; transform:translateY(-50%); margin-left:26px; white-space:nowrap; }
+.org-page .o-side::before { content:""; position:absolute; right:100%; top:50%; width:26px; border-top:2px solid var(--line); }
+
+/* ---------- Departamentos ---------- */
+.org-page .o-deptwrap { position:relative; margin-top:16px; padding-top:16px; display:grid; grid-template-columns:repeat(6,1fr); gap:10px; }
+.org-page .o-deptwrap::before { content:""; position:absolute; top:0; left:8.3%; right:8.3%; border-top:2px solid var(--line); }
+.org-page .o-deptwrap::after { content:""; position:absolute; top:-16px; left:50%; height:16px; border-left:2px solid var(--line); }
+.org-page .o-dept { position:relative; background:#fff; border:1px solid #d9e2f2; border-top:4px solid var(--c); border-radius:8px; padding:10px; font-size:11px; }
+.org-page .o-dept::before { content:""; position:absolute; top:-20px; left:50%; height:16px; border-left:2px solid var(--line); }
+.org-page .o-dept h6 { display:flex; align-items:center; gap:6px; margin:0 0 6px; font-size:11px; text-transform:uppercase; color:var(--c); line-height:1.2; }
+.org-page .o-dept h6 span { font-size:20px; }
+.org-page .o-dept ul { margin:0; padding-left:14px; color:#445; }
+.org-page .d1 { --c:#1d4ed8; } .org-page .d2 { --c:#7c3aed; } .org-page .d3 { --c:#dc2626; }
+.org-page .d4 { --c:#16a34a; } .org-page .d5 { --c:#0284c7; } .org-page .d6 { --c:#d97706; }
+@media (max-width:1100px) { .org-page .o-deptwrap { grid-template-columns:repeat(3,1fr); } .org-page .o-deptwrap::before, .org-page .o-dept::before { display:none; } }
+
+/* ---------- Estruturas territoriais ---------- */
+.org-page .o-terr-wrap { position:relative; margin-top:26px; }
+.org-page .o-terr-wrap::before { content:""; position:absolute; top:-26px; left:50%; height:26px; border-left:2px solid var(--line); }
+.org-page .o-terr-title { background:#1764ed; color:#fff; text-align:center; border-radius:6px; padding:7px; font-weight:700; letter-spacing:1px; margin-bottom:10px; }
+.org-page .o-terr-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.org-page .o-terr { border-radius:10px; padding:12px; text-align:center; font-weight:700; font-size:13px; }
+.org-page .o-terr b { display:block; font-size:22px; }
+.org-page .t1 { background:#dbe9ff; color:#1d4ed8; }
+.org-page .t2 { background:#dff5e6; color:#17803d; }
+.org-page .t3 { background:#fff0d6; color:#b45309; }
+.org-page .t4 { background:#ffe0e0; color:#c0392b; }
+.org-page .o-foot { background:#e9eefb; border-radius:8px; text-align:center; padding:8px 12px; margin:12px auto 0; max-width:420px; color:#0b2a5b; font-size:13px; }
+@media (max-width:700px) { .org-page .o-terr-row { grid-template-columns:repeat(2,1fr); } }
+
+/* ---------- Painel lateral ---------- */
+.org-page .o-statgrid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.org-page .o-statgrid div { display:flex; align-items:center; gap:8px; border-radius:8px; padding:8px 10px; font-size:11px; }
+.org-page .o-statgrid i { font-style:normal; font-size:18px; }
+.org-page .o-statgrid b { display:block; font-size:17px; line-height:1.1; }
+.org-page .s-blue { background:#e8f0ff; } .org-page .s-green { background:#e6f6ec; }
+.org-page .s-orange { background:#fff3e0; } .org-page .s-teal { background:#e0f3fb; } .org-page .s-red { background:#ffe3e3; }
+.org-page .o-kv { width:100%; border-collapse:collapse; font-size:13px; }
+.org-page .o-kv td { padding:5px 0; border-bottom:1px solid #eef2fa; }
+.org-page .o-kv td:last-child { text-align:right; color:#667; }
+
+@media print {
+  .org-page .o-actions, .org-page .o-tabs, .org-page .o-side-panel { display:none !important; }
+  .org-page .o-grid { grid-template-columns:1fr; }
+}
+</style>
+
+<div class="org-page">
+
+  <div class="o-top">
+    <div class="o-head">
+      <h2>🏛️ Estrutura Organizacional</h2>
+      <p>Gerir a estrutura organizacional, a liderança, os departamentos e as comissões da OJETIL.</p>
+    </div>
+    <div class="o-actions">
+      <a href="{% url 'organization:position_add' %}" class="o-btn o-btn-green">+ Adicionar Cargo</a>
+      <button type="button" onclick="window.print()" class="o-btn o-btn-blue">⬇ Exportar Organograma</button>
+    </div>
+  </div>
+
+  <div class="o-tabs">
+    <a href="{% url 'organization:structure' %}" class="on">Organograma</a>
+    <a href="{% url 'organization:structure_list' %}">Lista da Estrutura</a>
+    <a href="{% url 'organization:positions' %}">Cargos</a>
+    <a href="{% url 'organization:committees' %}">Comissões</a>
+    <a href="{% url 'organization:departments' %}">Departamentos</a>
+    <a href="{% url 'organization:history' %}">Histórico</a>
+  </div>
+
+  <div class="o-grid">
+
+    <!-- ===================== ORGANOGRAMA ===================== -->
+    <div class="o-panel o-tabbed">
+      <h5 class="o-chart-title">Estrutura Organizacional da OJETIL</h5>
+      <p class="o-chart-sub">Organização da Juventude e dos Estudantes de Timor-Leste</p>
+
+      <div class="o-scroll">
+        <ul class="o-tree">
+          <!-- Conselho Nacional -->
+          <li>
+            <div class="o-nodewrap">
+              <div class="o-node" style="--c:#1d6fe0;">
+                <span class="o-ico">🏛</span>
+                <span class="o-txt"><strong>Conselho Nacional</strong><small>Assembleia Geral</small></span>
+              </div>
+            </div>
+
+            <ul>
+              <!-- Presidente + Conselho Consultivo -->
+              <li>
+                <div class="o-nodewrap">
+                  <div class="o-node" style="--c:#e03131;">
+                    <span class="o-ico">👤</span>
+                    <span class="o-txt"><strong>Presidente</strong><small>Lidera e representa a OJETIL</small></span>
+                  </div>
+                  <div class="o-side" style="--c:#6c757d;">
+                    <span class="o-ico">👥</span>
+                    <span class="o-txt"><strong>Conselho Consultivo</strong><small>Órgão de assessoria</small></span>
+                  </div>
+                </div>
+
+                <ul>
+                  <!-- Vice-Presidente 1 -->
+                  <li>
+                    <div class="o-nodewrap">
+                      <div class="o-node" style="--c:#0f9d7a;">
+                        <span class="o-ico">👤</span>
+                        <span class="o-txt"><strong>Vice-Presidente 1</strong><small>Apoio à liderança 1</small></span>
+                      </div>
+                    </div>
+                  </li>
+
+                  <!-- Secretário-Geral + Adjunto -->
+                  <li>
+                    <div class="o-nodewrap">
+                      <div class="o-node" style="--c:#2563eb;">
+                        <span class="o-ico">👤</span>
+                        <span class="o-txt"><strong>Secretário-Geral</strong><small>Administração e coordenação</small></span>
+                      </div>
+                    </div>
+                    <ul>
+                      <li>
+                        <div class="o-nodewrap">
+                          <div class="o-node" style="--c:#7c3aed;">
+                            <span class="o-ico">👤</span>
+                            <span class="o-txt"><strong>Secretário-Geral Adjunto</strong><small>Apoio ao Secretário-Geral</small></span>
+                          </div>
+                        </div>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <!-- Vice-Presidente 2 -->
+                  <li>
+                    <div class="o-nodewrap">
+                      <div class="o-node" style="--c:#0f9d7a;">
+                        <span class="o-ico">👤</span>
+                        <span class="o-txt"><strong>Vice-Presidente 2</strong><small>Apoio à liderança 2</small></span>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Departamentos (6) -->
+      <div class="o-deptwrap">
+        <div class="o-dept d1">
+          <h6><span>📘</span>Departamento de Educação</h6>
+          <ul><li>Formação e Capacitação</li><li>Bolsas de Estudo</li><li>Programas Académicos</li></ul>
+        </div>
+        <div class="o-dept d2">
+          <h6><span>🤝</span>Departamento da Juventude e Liderança</h6>
+          <ul><li>Desenvolvimento da Liderança</li><li>Voluntariado</li><li>Capacitação dos Jovens</li></ul>
+        </div>
+        <div class="o-dept d3">
+          <h6><span>🏐</span>Departamento da Cultura e Desporto</h6>
+          <ul><li>Atividades Desportivas</li><li>Promoção da Cultura</li><li>Eventos Juvenis</li></ul>
+        </div>
+        <div class="o-dept d4">
+          <h6><span>🌱</span>Departamento da Agricultura</h6>
+          <ul><li>Apoio a Projetos Agrícolas</li><li>Segurança Alimentar</li><li>Apoio à Juventude Rural</li></ul>
+        </div>
+        <div class="o-dept d5">
+          <h6><span>📢</span>Departamento de Comunicação</h6>
+          <ul><li>Media e Informação</li><li>Redes Sociais</li><li>Publicações</li></ul>
+        </div>
+        <div class="o-dept d6">
+          <h6><span>💻</span>Departamento de TIC</h6>
+          <ul><li>Tecnologias de Informação</li><li>Sistemas Digitais</li><li>Apoio à Infraestrutura</li></ul>
+        </div>
+      </div>
+
+      <!-- Estruturas Territoriais -->
+      <div class="o-terr-wrap">
+        <div class="o-terr-title">ESTRUTURAS TERRITORIAIS</div>
+        <div class="o-terr-row">
+          <div class="o-terr t1">📍 MUNICÍPIOS<b>({{ total_municipios|default:"0" }})</b></div>
+          <div class="o-terr t2">🏘️ SUCOS<b>({{ total_sucos|default:"0" }})</b></div>
+          <div class="o-terr t3">🏠 ALDEIAS<b>({{ total_aldeias|default:"0" }})</b></div>
+          <div class="o-terr t4">👥 MEMBROS<b>({{ total_membros|default:"0" }})</b></div>
+        </div>
+      </div>
+
+      <div class="o-foot">
+        <strong>Juventude Unida, Timor-Leste Mais Forte</strong><br>
+        <em>Saber para Servir</em>
+      </div>
+    </div>
+
+    <!-- ===================== PAINEL LATERAL ===================== -->
+    <div class="o-side-panel">
+
+      <div class="o-panel">
+        <h6>Estatísticas</h6>
+        <div class="o-statgrid">
+          <div class="s-blue"><i>🏢</i><span><b>6</b>Departamentos</span></div>
+          <div class="s-green"><i>📍</i><span><b>{{ total_municipios|default:"0" }}</b>Municípios</span></div>
+          <div class="s-orange"><i>🏘️</i><span><b>{{ total_sucos|default:"0" }}</b>Sucos</span></div>
+          <div class="s-teal"><i>🏠</i><span><b>{{ total_aldeias|default:"0" }}</b>Aldeias</span></div>
+          <div class="s-red"><i>👥</i><span><b>{{ total_membros|default:"0" }}</b>Membros</span></div>
+        </div>
+      </div>
+
+      <div class="o-panel">
+        <h6>Cargos Principais</h6>
+        <table class="o-kv">
+          <tr><td>Presidente</td><td>1</td></tr>
+          <tr><td>Vice-Presidente 1</td><td>1</td></tr>
+          <tr><td>Vice-Presidente 2</td><td>1</td></tr>
+          <tr><td>Secretário-Geral</td><td>1</td></tr>
+          <tr><td>Secretário-Geral Adjunto</td><td>1</td></tr>
+        </table>
+      </div>
+
+      <div class="o-panel">
+        <h6>Departamentos</h6>
+        <table class="o-kv">
+          <tr><td>Total de Departamentos</td><td>6</td></tr>
+        </table>
+      </div>
+
+      <div class="o-panel">
+        <h6>Estrutura Territorial</h6>
+        <table class="o-kv">
+          <tr><td>Municípios</td><td>{{ total_municipios|default:"0" }}</td></tr>
+          <tr><td>Sucos</td><td>{{ total_sucos|default:"0" }}</td></tr>
+          <tr><td>Aldeias</td><td>{{ total_aldeias|default:"0" }}</td></tr>
+        </table>
+      </div>
+
+      <div class="o-panel">
+        <h6>Ações Rápidas</h6>
+        <a href="{% url 'organization:position_add' %}" class="o-btn o-btn-green o-btn-block">＋ Adicionar Novo Cargo</a>
+        <a href="{% url 'organization:structure_list' %}" class="o-btn o-btn-blue o-btn-block">✎ Editar Estrutura</a>
+        <a href="{% url 'organization:departments' %}" class="o-btn o-btn-orange o-btn-block">⚙ Gerir Departamentos</a>
+        <a href="{% url 'organization:positions' %}" class="o-btn o-btn-purple o-btn-block">☰ Ver Lista de Cargos</a>
+        <button type="button" onclick="window.print()" class="o-btn o-btn-red o-btn-block">🖨 Imprimir Organograma</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

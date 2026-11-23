@@ -1,0 +1,30 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<div class="org-page">
+  <div class="o-panel o-form">
+    <h4>{{ action }} {% block form_title %}{% endblock %}</h4>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      {% for field in form %}
+      <div class="o-field">
+        {% if field.field.widget.input_type == "checkbox" %}
+          <label>{{ field }} {{ field.label }}</label>
+        {% else %}
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+        {% endif %}
+        {% for e in field.errors %}<div class="o-error">{{ e }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="o-btn o-btn-blue">Save</button>
+      <a href="{% block back_url %}{% url 'organization:structure' %}{% endblock %}" class="o-btn o-btn-gray">Cancel</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

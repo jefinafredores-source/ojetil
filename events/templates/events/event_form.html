@@ -1,0 +1,103 @@
+
+{% extends 'dashboard/base.html' %}
+
+{% block content %}
+
+<div style="padding:25px;">
+
+    <div style="margin-bottom:20px;">
+
+        <h2>
+            <i class="fas fa-calendar-plus"></i>
+            {{ page_title }}
+        </h2>
+
+        <p style="color:#777;">
+            Criar e gerir eventos da OJETIL.
+        </p>
+
+    </div>
+
+
+    <div class="card"
+         style="background:white;
+                padding:25px;
+                border-radius:8px;">
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+
+                <div class="alert alert-danger">
+
+                    {{ form.non_field_errors }}
+
+                </div>
+
+            {% endif %}
+
+
+            <div class="row">
+
+                {% for field in form %}
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.errors %}
+
+                        <div class="text-danger">
+
+                            {{ field.errors }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div style="margin-top:20px;">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+
+                    <i class="fas fa-save"></i>
+
+                    {{ button_text }}
+
+                </button>
+
+
+                <a
+                    href="{% url 'events:event_list' %}"
+                    class="btn btn-secondary"
+                >
+
+                    Cancelar
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

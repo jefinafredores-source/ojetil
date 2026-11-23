@@ -1,0 +1,1098 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .registration-page {
+        background: #f4f6f9;
+        min-height: 85vh;
+        padding: 30px 20px;
+    }
+
+    .registration-wrapper {
+        max-width: 1450px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        background: #fff;
+        padding: 22px 26px;
+        border-radius: 12px;
+        border-left: 5px solid #0d6efd;
+        box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        margin-bottom: 25px;
+    }
+
+    .page-header h3 {
+        color: #17365d;
+        font-weight: 700;
+    }
+
+    .section-card {
+        border: 0;
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0,0,0,.06);
+        overflow: hidden;
+    }
+
+    .section-card .card-body {
+        padding: 25px;
+    }
+
+    .section-title {
+        color: #17365d;
+        font-size: 17px;
+        font-weight: 700;
+        padding-bottom: 13px;
+        border-bottom: 1px solid #e9ecef;
+        margin-bottom: 22px;
+    }
+
+    .form-label {
+        font-size: 14px;
+        color: #344767;
+        margin-bottom: 7px;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 43px;
+        border-radius: 7px;
+        border-color: #dce1e7;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 .2rem rgba(13,110,253,.12);
+    }
+
+    .photo-preview-small {
+        width: 100px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid #dee2e6;
+        background: #f1f3f5;
+    }
+
+    .upload-box {
+        border: 2px dashed #ced4da;
+        border-radius: 10px;
+        padding: 25px 15px;
+        background: #f8f9fa;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .upload-box:hover {
+        border-color: #0d6efd;
+        background: #f0f6ff;
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    /* Membership Card Live Preview */
+    .card-ojetil-live-preview {
+        width: 100%;
+        max-width: 500px;
+        aspect-ratio: 1.90 / 1;
+        position: relative;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #b8b8b8;
+        border-radius: 5px;
+        box-shadow: 0 4px 14px rgba(0,0,0,.16);
+        font-family: Arial, sans-serif;
+        color: #222;
+        margin: 0 auto;
+    }
+
+    /* BANDEIRA OJETIL - VETOR SVG EXATO */
+    .flag-top-corner {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        width: 112px;
+        height: 66px;
+        overflow: hidden;
+        border: 1px solid #b5b5b5;
+        border-radius: 3px;
+        z-index: 20;
+        pointer-events: none;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,.15);
+    }
+
+    .flag-top-corner svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .live-card-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 65%;
+        height: 32%;
+        display: flex;
+        align-items: center;
+        padding: 5px 8px;
+        background: white;
+        border-bottom: 1px solid #ddd;
+        z-index: 10;
+    }
+
+    .live-card-logo {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+        flex-shrink: 0;
+        margin-right: 6px;
+        border-radius: 50%;
+    }
+
+    .live-card-org {
+        line-height: 1;
+    }
+
+    .live-card-org-short {
+        display: block;
+        font-size: 15px;
+        font-weight: 900;
+        color: #111;
+    }
+
+    .live-card-org-full {
+        display: block;
+        max-width: 175px;
+        margin-top: 3px;
+        font-size: 6px;
+        line-height: 1.15;
+        color: #444;
+        text-transform: uppercase;
+    }
+
+    .live-card-body {
+        position: absolute;
+        top: 35%;
+        left: 4%;
+        right: 4%;
+        height: 43%;
+        display: flex;
+        align-items: flex-start;
+        z-index: 8;
+    }
+
+    .card-photo-frame {
+        width: 68px;
+        height: 80px;
+        flex-shrink: 0;
+        object-fit: cover;
+        background: #eee;
+        border: 1px solid #aaa;
+        border-radius: 3px;
+        margin-right: 10px;
+    }
+
+    .live-card-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .live-card-row {
+        height: 16px;
+        display: flex;
+        align-items: center;
+    }
+
+    .live-card-label {
+        width: 48px;
+        flex-shrink: 0;
+        font-size: 7.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #555;
+    }
+
+    .live-card-value {
+        max-width: 135px;
+        font-size: 7.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .live-card-id {
+        color: #0068c9;
+        font-weight: 700;
+    }
+
+    .live-card-qr-wrapper {
+        width: 62px;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .live-card-qr,
+    .live-card-qr-fallback {
+        width: 58px;
+        height: 58px;
+        object-fit: contain;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        padding: 1px;
+        background: #fff;
+    }
+
+    .live-card-qr-fallback {
+        display: none;
+    }
+
+    .live-card-footer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 6px;
+        height: 20%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+        background: #fff;
+        border-top: 1px solid #ddd;
+        z-index: 10;
+    }
+
+    .moto-text-live {
+        font-size: 8px;
+        font-weight: 700;
+        font-style: italic;
+        margin-top: 3px;
+    }
+
+    .flag-bottom-bar {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 105px;
+        height: 6px;
+        display: flex;
+        z-index: 30;
+    }
+
+    .flag-bottom-black,
+    .flag-bottom-red,
+    .flag-bottom-yellow {
+        width: 33.333%;
+    }
+
+    .flag-bottom-black { background: #111; }
+    .flag-bottom-red { background: #d71920; }
+    .flag-bottom-yellow { background: #f5c400; }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    @media(max-width: 500px) {
+        .registration-page {
+            padding: 15px 8px;
+        }
+
+        .section-card .card-body {
+            padding: 17px;
+        }
+
+        .flag-top-corner {
+            width: 86px;
+            height: 52px;
+            top: 4px;
+            right: 5px;
+        }
+
+        .live-card-header {
+            width: 66%;
+            height: 32%;
+        }
+
+        .live-card-logo {
+            width: 37px;
+            height: 37px;
+        }
+
+        .live-card-org-short {
+            font-size: 12px;
+        }
+
+        .live-card-org-full {
+            font-size: 5px;
+        }
+
+        .card-photo-frame {
+            width: 58px;
+            height: 70px;
+        }
+
+        .live-card-label,
+        .live-card-value {
+            font-size: 6.5px;
+        }
+
+        .live-card-qr,
+        .live-card-qr-fallback {
+            width: 48px;
+            height: 48px;
+        }
+
+        .live-card-qr-wrapper {
+            width: 53px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons button {
+            width: 100% !important;
+        }
+    }
+</style>
+
+<div class="registration-page">
+<div class="registration-wrapper">
+
+    <!-- CABECALHO -->
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h3 class="mb-1">
+                <i class="bi bi-person-plus-fill text-primary me-2"></i>
+                Registo de Membros
+            </h3>
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'dashboard:home' %}">Página Inicial</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        Registo de Membros
+                    </li>
+                </ol>
+            </nav>
+        </div>
+
+        <a href="{% url 'members:list' %}" class="btn btn-success fw-bold">
+            <i class="bi bi-people-fill me-1"></i>
+            Consultar Membros
+        </a>
+    </div>
+
+    <!-- MENSAGENS -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- ERROS -->
+    {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Por favor, corrija os seguintes erros:</strong>
+            <ul class="mb-0 mt-2">
+                {% for field, errors in form.errors.items %}
+                    <li>
+                        <strong>{{ field }}:</strong>
+                        {{ errors|join:", " }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-4">
+
+            <!-- COLUNA ESQUERDA -->
+            <div class="col-lg-7">
+
+                <!-- DADOS PESSOAIS -->
+                <div class="card section-card mb-4">
+                    <div class="card-body">
+
+                        <h5 class="section-title">
+                            <i class="bi bi-person-fill me-2"></i>
+                            Dados Pessoais
+                        </h5>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Nome Completo <span class="required">*</span>
+                                </label>
+                                <input type="text" name="full_name"
+                                       id="id_full_name"
+                                       class="form-control"
+                                       value="{{ form.full_name.value|default:'' }}"
+                                       placeholder="Introduza o nome completo"
+                                       required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Nome de Código <span class="required">*</span>
+                                </label>
+                                <input type="text" name="codigo"
+                                       class="form-control"
+                                       value="{{ form.codigo.value|default:'' }}"
+                                       placeholder="Introduza o código"
+                                       required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Sexo <span class="required">*</span>
+                                </label>
+
+                                <select name="gender" class="form-select" required>
+                                    <option value="Male">Masculino</option>
+                                    <option value="Female">Feminino</option>
+                                    <option value="Other">Outro</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Data de Nascimento <span class="required">*</span>
+                                </label>
+                                <input type="date" name="date_of_birth"
+                                       class="form-control" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Local de Nascimento <span class="required">*</span>
+                                </label>
+
+                                <select name="place_of_birth"
+                                        id="id_place_of_birth"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">-- Selecionar Município --</option>
+
+                                    {% for muni in municipalities %}
+                                        <option value="{{ muni.id }}"
+                                            {% if form.place_of_birth.value|stringformat:"s" == muni.id|stringformat:"s" %}
+                                                selected
+                                            {% endif %}>
+                                            {{ muni.name }}
+                                        </option>
+                                    {% endfor %}
+
+                                </select>
+
+                                {% if form.place_of_birth.errors %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form.place_of_birth.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Número do BI <span class="required">*</span>
+                                </label>
+                                <input type="text" name="national_id"
+                                       class="form-control"
+                                       placeholder="Número de identificação"
+                                       required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Número de Telefone <span class="required">*</span>
+                                </label>
+                                <input type="text" name="phone_number"
+                                       class="form-control"
+                                       placeholder="+670 77399000"
+                                       required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Endereço / Local de Residência
+                                </label>
+                                <input type="text" name="address"
+                                       class="form-control"
+                                       placeholder="Ex.: Bidau Santa Ana">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Endereço de Email
+                                </label>
+                                <input type="email" name="email"
+                                       class="form-control"
+                                       placeholder="exemplo@email.com">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DADOS DA ORGANIZAÇÃO -->
+                <div class="card section-card mb-4">
+                    <div class="card-body">
+
+                        <h5 class="section-title">
+                            <i class="bi bi-diagram-3-fill me-2"></i>
+                            Informações da Organização
+                        </h5>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Cargo / Função <span class="required">*</span>
+                                </label>
+
+                                <select name="position" id="id_position"
+                                        class="form-select" required>
+
+                                    <option value="Membro">Membro</option>
+                                    <option value="Estrutura">Estrutura</option>
+                                    <option value="Lider">Líder</option>
+                                    <option value="Presidente">Presidente</option>
+                                    <option value="Presidente Honorário">Presidente Honorário</option>
+                                    <option value="Secretario Geral">Secretário Geral</option>
+                                    <option value="Secretario Geral Adjunto">Secretário Geral Adjunto</option>
+                                    <option value="Diretor">Diretor</option>
+                                    <option value="Diretora">Diretora</option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Município / Distrito <span class="required">*</span>
+                                </label>
+
+                                <select name="district" id="id_district"
+                                        class="form-select" required>
+
+                                    <option value="">-- Selecionar Município --</option>
+
+                                    {% for muni in municipalities %}
+                                        <option value="{{ muni.id }}">
+                                            {{ muni.name }}
+                                        </option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Tipo de Membro <span class="required">*</span>
+                                </label>
+
+                                <select name="membership_type"
+                                        class="form-select" required>
+
+                                    <option value="Regular Member">Membro Regular</option>
+                                    <option value="Honorary Member">Membro Honorário</option>
+                                    <option value="Fundador">Fundador</option>
+                                    <option value="Honorário">Honorário</option>
+                                    <option value="Efetivo">Efetivo</option>
+
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">
+                                    Data de Registo <span class="required">*</span>
+                                </label>
+
+                                <input type="date" name="registration_date"
+                                       id="id_registration_date"
+                                       class="form-control" required>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DOCUMENTOS -->
+                <div class="card section-card mb-4">
+                    <div class="card-body">
+
+                        <h5 class="section-title">
+                            <i class="bi bi-file-earmark-arrow-up-fill me-2"></i>
+                            Documentos e Fotografia
+                        </h5>
+
+                        <div class="row g-4">
+
+                            <div class="col-md-5">
+                                <label class="form-label fw-bold">
+                                    Fotografia do Membro <span class="required">*</span>
+                                </label>
+
+                                <div class="d-flex align-items-center gap-3">
+
+                                    <img id="previewPhoto"
+                                         src="https://placehold.co/100x120?text=Foto"
+                                         class="photo-preview-small"
+                                         alt="Pré-visualização">
+
+                                    <div>
+                                        <input type="file" name="profile_photo"
+                                               id="photoInput"
+                                               class="d-none"
+                                               accept="image/*" required>
+
+                                        <button type="button"
+                                                class="btn btn-primary btn-sm mb-2 w-100"
+                                                onclick="document.getElementById('photoInput').click()">
+                                            <i class="bi bi-image me-1"></i>
+                                            Escolher Foto
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm w-100"
+                                                onclick="resetPhoto()">
+                                            <i class="bi bi-trash me-1"></i>
+                                            Remover
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <small class="text-muted d-block mt-2">
+                                    Formatos JPG ou PNG. Máximo 2 MB.
+                                </small>
+                            </div>
+
+                            <div class="col-md-7">
+                                <label class="form-label fw-bold">
+                                    Documento de Apoio
+                                    <span class="text-muted fw-normal">(Opcional)</span>
+                                </label>
+
+                                <div class="upload-box"
+                                     onclick="document.getElementById('docInput').click()">
+
+                                    <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+
+                                    <p class="fw-bold mb-1" id="docFileName">
+                                        Clique para selecionar um documento
+                                    </p>
+
+                                    <small class="text-muted">
+                                        PDF, JPG ou PNG. Máximo 5 MB.
+                                    </small>
+
+                                    <input type="file"
+                                           name="supporting_document"
+                                           id="docInput"
+                                           class="d-none"
+                                           accept=".pdf,.jpg,.jpeg,.png">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- COLUNA DIREITA -->
+            <div class="col-lg-5">
+
+                <!-- CARTÃO DE MEMBRO -->
+                <div class="card section-card mb-4">
+                    <div class="card-body">
+
+                        <h5 class="section-title">
+                            <i class="bi bi-card-heading me-2"></i>
+                            Pré-visualização do Cartão de Membro
+                        </h5>
+
+                        <div class="card-ojetil-live-preview">
+
+                            <!-- BANDEIRA OJETIL (MODELO EXATO SVG) -->
+                            <div class="flag-top-corner">
+                                <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <path id="previewCurveTop" d="M 27,93 Q 52.5,79 78,93" />
+                                        <path id="previewCurveBottom" d="M 27,174 Q 52.5,187 78,174" />
+                                    </defs>
+
+                                    <!-- Esquerda: Preto, Amarelo, Vermelho -->
+                                    <rect x="0" y="0" width="105" height="66.67" fill="#050505"/>
+                                    <rect x="0" y="66.67" width="105" height="66.67" fill="#fff500"/>
+                                    <rect x="0" y="133.33" width="105" height="66.67" fill="#ff1717"/>
+
+                                    <!-- Direita: Azul, Branco, Verde -->
+                                    <rect x="105" y="0" width="195" height="66.67" fill="#4298ed"/>
+                                    <rect x="105" y="66.67" width="195" height="66.67" fill="#ffffff"/>
+                                    <rect x="105" y="133.33" width="195" height="66.67" fill="#168b00"/>
+
+                                    <!-- Estrela Branca -->
+                                    <polygon points="52.5,8 59.5,27 79.5,27 63.5,39 69.5,58 52.5,46.5 35.5,58 41.5,39 25.5,27 45.5,27" fill="#ffffff"/>
+
+                                    <!-- Texto OJETIL -->
+                                    <text x="202.5" y="114" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="900" fill="#000000" text-anchor="middle" letter-spacing="1">OJETIL</text>
+
+                                    <!-- Fita Superior -->
+                                    <polygon points="27,89 15,96 20,101 14,106 27,102" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                    <polygon points="78,89 90,96 85,101 91,106 78,102" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                    <path d="M 24,87 Q 52.5,72 81,87 L 81,100 Q 52.5,85 24,100 Z" fill="#ffffff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                    <text font-family="Arial, Helvetica, sans-serif" font-size="5.6" font-weight="900" fill="#000000" letter-spacing="0.15">
+                                        <textPath href="#previewCurveTop" startOffset="50%" text-anchor="middle">SABER PARA SERVIR</textPath>
+                                    </text>
+
+                                    <!-- Emblema Central Cruzado (Enxada + Lapizeira) -->
+                                    <g>
+                                        <path d="M 33,108 Q 56,125 81,148 L 78,151 Q 53,128 30,111 Z" fill="#8b3a2b" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                        <polygon points="35,103 25,115 35,127 42,113" fill="#8e8e8e" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                    </g>
+                                    <g transform="translate(53, 128) rotate(42)">
+                                        <rect x="-4" y="-26" width="8" height="42" rx="1" fill="#707070" stroke="#000" stroke-width="1.3"/>
+                                        <path d="M 4,-22 L 7,-22 L 7,-4 L 4,-4" fill="none" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                        <line x1="-4" y1="-14" x2="4" y2="-14" stroke="#000" stroke-width="1.3"/>
+                                        <polygon points="-4,16 4,16 1.5,25 -1.5,25" fill="#9e9e9e" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                        <line x1="0" y1="25" x2="0" y2="29" stroke="#000" stroke-width="1.4" stroke-linecap="round"/>
+                                    </g>
+
+                                    <!-- Fita Inferior -->
+                                    <polygon points="27,172 15,165 20,160 14,155 27,159" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                    <polygon points="78,172 90,165 85,160 91,155 78,159" fill="#e6e6e6" stroke="#000" stroke-width="1.2" stroke-linejoin="round"/>
+                                    <path d="M 24,162 Q 52.5,176 81,162 L 81,175 Q 52.5,189 24,175 Z" fill="#ffffff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/>
+                                    <text font-family="Arial, Helvetica, sans-serif" font-size="6.4" font-weight="900" fill="#000000" letter-spacing="0.2">
+                                        <textPath href="#previewCurveBottom" startOffset="50%" text-anchor="middle">PÁTRIA - POVO</textPath>
+                                    </text>
+                                </svg>
+                            </div>
+
+                            <div class="live-card-header">
+                                <img src="{% static 'main/images/logo.jpeg' %}"
+                                     class="live-card-logo"
+                                     alt="Logótipo OJETIL">
+
+                                <div class="live-card-org">
+                                    <span class="live-card-org-short">OJETIL</span>
+                                    <span class="live-card-org-full">
+                                        Organização da Juventude e dos Estudantes de Timor-Leste
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="live-card-body">
+                                <img id="cardPhoto"
+                                     src="https://placehold.co/68x80?text=Foto"
+                                     class="card-photo-frame"
+                                     alt="Fotografia do membro">
+
+                                <div class="live-card-details">
+                                    <div class="live-card-row">
+                                        <div class="live-card-label">Nome</div>
+                                        <div class="live-card-value" id="cardName">-</div>
+                                    </div>
+
+                                    <div class="live-card-row">
+                                        <div class="live-card-label">ID</div>
+                                        <div class="live-card-value live-card-id" id="cardID">
+                                            {{ preview_id|default:"-" }}
+                                        </div>
+                                    </div>
+
+                                    <div class="live-card-row">
+                                        <div class="live-card-label">Cargo</div>
+                                        <div class="live-card-value" id="cardCargo">Membro</div>
+                                    </div>
+
+                                    <div class="live-card-row">
+                                        <div class="live-card-label">Distrito</div>
+                                        <div class="live-card-value" id="cardDistrict">-</div>
+                                    </div>
+
+                                    <div class="live-card-row">
+                                        <div class="live-card-label">Emissão</div>
+                                        <div class="live-card-value" id="cardDate">-</div>
+                                    </div>
+                                </div>
+
+                                <div class="live-card-qr-wrapper">
+                                    {% with qr_val=preview_id|default:"OJETIL" %}
+                                        <img id="cardQR"
+                                             src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data={{ qr_val|urlencode }}"
+                                             class="live-card-qr"
+                                             alt="Código QR"
+                                             data-qr-text="{{ qr_val }}"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block'; drawFallbackQR(this.nextElementSibling, this.dataset.qrText);">
+                                        <canvas id="cardQRFallback" class="live-card-qr-fallback" width="120" height="120"></canvas>
+                                    {% endwith %}
+                                </div>
+                            </div>
+
+                            <div class="live-card-footer">
+                                <span class="moto-text-live">Saber para Servir</span>
+                            </div>
+
+                            <div class="flag-bottom-bar">
+                                <div class="flag-bottom-black"></div>
+                                <div class="flag-bottom-red"></div>
+                                <div class="flag-bottom-yellow"></div>
+                            </div>
+
+                        </div>
+
+                        <p class="text-muted text-center small mt-3 mb-0">
+                            O cartão será atualizado automaticamente com os dados introduzidos.
+                        </p>
+
+                    </div>
+                </div>
+
+                <!-- ESTADO DO REGISTO -->
+                <div class="card section-card mb-4">
+                    <div class="card-body">
+
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                            Estado do Registo
+                        </h6>
+
+                        <div class="d-flex align-items-center gap-3">
+                            <i class="bi bi-hourglass-split fs-2 text-warning"></i>
+
+                            <div>
+                                <strong class="d-block">Aguardando Aprovação</strong>
+                                <small class="text-muted">
+                                    Após o registo, os dados serão enviados para verificação do CEO/Chefe.
+                                </small>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- NOTAS -->
+                <div class="card section-card mb-4">
+                    <div class="card-body">
+
+                        <h6 class="fw-bold mb-3">
+                            <i class="bi bi-exclamation-circle-fill text-primary me-2"></i>
+                            Observações Importantes
+                        </h6>
+
+                        <ul class="small text-muted mb-0 ps-3">
+                            <li class="mb-2">Todos os campos com asterisco (*) são obrigatórios.</li>
+                            <li class="mb-2">A fotografia deve estar em formato JPG ou PNG.</li>
+                            <li class="mb-2">O local de nascimento corresponde ao município.</li>
+                            <li class="mb-2">O município de residência pode ser diferente do local de nascimento.</li>
+                            <li>O registo fica pendente até à aprovação.</li>
+                        </ul>
+
+                    </div>
+                </div>
+
+                <!-- BOTÕES -->
+                <div class="action-buttons mb-4">
+
+                    <button type="reset"
+                            class="btn btn-outline-secondary w-50 fw-bold py-2"
+                            onclick="resetFormCard()">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                        Limpar
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-primary w-50 fw-bold py-2">
+                        <i class="bi bi-person-plus-fill me-1"></i>
+                        Registar Membro
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </form>
+
+</div>
+</div>
+
+<script>
+function formatDate(dateStr) {
+    if (!dateStr) return "-";
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr;
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+}
+
+function drawFallbackQR(canvas, text) {
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const size = canvas.width;
+    const cells = 21;
+    const cellSize = size / cells;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+
+    let hash = 2166136261;
+    const str = String(text || "OJETIL");
+    for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+    }
+
+    ctx.fillStyle = "#111111";
+
+    function drawFinder(ox, oy) {
+        ctx.fillRect(ox * cellSize, oy * cellSize, 7 * cellSize, 7 * cellSize);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect((ox + 1) * cellSize, (oy + 1) * cellSize, 5 * cellSize, 5 * cellSize);
+        ctx.fillStyle = "#111111";
+        ctx.fillRect((ox + 2) * cellSize, (oy + 2) * cellSize, 3 * cellSize, 3 * cellSize);
+    }
+
+    drawFinder(0, 0);
+    drawFinder(cells - 7, 0);
+    drawFinder(0, cells - 7);
+
+    for (let r = 0; r < cells; r++) {
+        for (let c = 0; c < cells; c++) {
+            const inTopLeft = r < 8 && c < 8;
+            const inTopRight = r < 8 && c >= cells - 8;
+            const inBottomLeft = r >= cells - 8 && c < 8;
+            if (inTopLeft || inTopRight || inBottomLeft) continue;
+
+            const bit = ((hash >>> ((r * cells + c) % 24)) ^ (r * 31 + c * 17)) & 1;
+            if (bit) {
+                ctx.fillRect(c * cellSize, r * cellSize, cellSize + 0.3, cellSize + 0.3);
+            }
+        }
+    }
+}
+
+function resetPhoto() {
+    const input = document.getElementById("photoInput");
+    if (input) input.value = "";
+    document.getElementById("previewPhoto").src = "https://placehold.co/100x120?text=Foto";
+    document.getElementById("cardPhoto").src = "https://placehold.co/68x80?text=Foto";
+}
+
+function resetFormCard() {
+    setTimeout(function () {
+        document.getElementById("cardName").innerText = "-";
+        document.getElementById("cardCargo").innerText = "Membro";
+        document.getElementById("cardDistrict").innerText = "-";
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("cardDate").innerText = formatDate(today);
+        const docLabel = document.getElementById("docFileName");
+        if (docLabel) docLabel.innerText = "Clique para selecionar um documento";
+        resetPhoto();
+    }, 0);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date().toISOString().split("T")[0];
+    const dateInput = document.getElementById("id_registration_date");
+    const cardDate = document.getElementById("cardDate");
+
+    if (dateInput) {
+        if (!dateInput.value) dateInput.value = today;
+        cardDate.innerText = formatDate(dateInput.value);
+
+        dateInput.addEventListener("change", function () {
+            cardDate.innerText = formatDate(this.value);
+        });
+    }
+
+    const nameInput = document.getElementById("id_full_name");
+    if (nameInput) {
+        nameInput.addEventListener("input", function () {
+            document.getElementById("cardName").innerText = this.value.trim() || "-";
+        });
+    }
+
+    const positionInput = document.getElementById("id_position");
+    if (positionInput) {
+        positionInput.addEventListener("change", function () {
+            document.getElementById("cardCargo").innerText =
+                this.options[this.selectedIndex].text;
+        });
+    }
+
+    const districtInput = document.getElementById("id_district");
+    if (districtInput) {
+        districtInput.addEventListener("change", function () {
+            document.getElementById("cardDistrict").innerText =
+                this.options[this.selectedIndex].value ? this.options[this.selectedIndex].text : "-";
+        });
+    }
+
+    const photoInput = document.getElementById("photoInput");
+    if (photoInput) {
+        photoInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("Por favor, selecione uma imagem válida (JPG ou PNG).");
+                this.value = "";
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("A fotografia deve ter no máximo 2 MB.");
+                this.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById("previewPhoto").src = e.target.result;
+                document.getElementById("cardPhoto").src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    const docInput = document.getElementById("docInput");
+    if (docInput) {
+        docInput.addEventListener("change", function () {
+            const file = this.files[0];
+            const docLabel = document.getElementById("docFileName");
+            if (!file) {
+                docLabel.innerText = "Clique para selecionar um documento";
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                alert("O documento deve ter no máximo 5 MB.");
+                this.value = "";
+                docLabel.innerText = "Clique para selecionar um documento";
+                return;
+            }
+            docLabel.innerText = file.name;
+        });
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,367 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    .detail-page {
+        padding: 24px;
+        background: #f4f6f9;
+        min-height: 85vh;
+    }
+
+    .detail-header,
+    .detail-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.05);
+        margin-bottom: 20px;
+    }
+
+    .detail-header {
+        border-left: 5px solid #0d6efd;
+    }
+
+    .detail-header h4 {
+        color: #17365d;
+        font-weight: 700;
+    }
+
+    .profile-section {
+        text-align: center;
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 20px;
+    }
+
+    .profile-photo {
+        width: 125px;
+        height: 125px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e9ecef;
+        margin-bottom: 12px;
+    }
+
+    .info-label {
+        color: #6c757d;
+        font-size: 13px;
+        margin-bottom: 4px;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #263238;
+        margin-bottom: 17px;
+        word-break: break-word;
+    }
+
+    .action-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 2px 8px rgba(0,0,0,.05);
+        margin-bottom: 20px;
+    }
+
+    .action-card h5 {
+        font-weight: 700;
+        margin-bottom: 18px;
+    }
+
+    .document-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+
+<div class="detail-page">
+
+    <!-- Cabeçalho -->
+    <div class="detail-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h4 class="mb-1">
+                <i class="bi bi-person-vcard-fill me-2"></i>
+                Detalhes da Verificação do Membro
+            </h4>
+            <p class="text-muted mb-0">
+                Reveja as informações do membro antes de tomar uma decisão sobre a aprovação.
+            </p>
+        </div>
+
+        <a href="{% url 'members:approval_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Voltar à Lista
+        </a>
+    </div>
+
+    <!-- Mensagens -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+
+        <!-- Informações do Membro -->
+        <div class="col-lg-8">
+
+            <div class="detail-card">
+
+                <div class="profile-section">
+
+                    {% if member.profile_photo %}
+                        <img src="{{ member.profile_photo.url }}"
+                             class="profile-photo"
+                             alt="Fotografia do Membro">
+                    {% else %}
+                        <i class="bi bi-person-circle"
+                           style="font-size:125px;color:#adb5bd;"></i>
+                    {% endif %}
+
+                    <h4 class="fw-bold mb-1">{{ member.full_name }}</h4>
+
+                    <p class="text-muted mb-2">
+                        ID: {{ member.member_id_code|default:"-" }}
+                    </p>
+
+                    {% if member.status == 'Em Aprovação' %}
+                        <span class="badge bg-warning text-dark fs-6">
+                            {{ member.status }}
+                        </span>
+                    {% elif member.status == 'Ativo' %}
+                        <span class="badge bg-success fs-6">
+                            {{ member.status }}
+                        </span>
+                    {% else %}
+                        <span class="badge bg-danger fs-6">
+                            {{ member.status }}
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-person-lines-fill me-2"></i>
+                    Informações Pessoais
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="info-label">Nome Completo</div>
+                        <div class="info-value">{{ member.full_name }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Género</div>
+                        <div class="info-value">{{ member.gender }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Data de Nascimento</div>
+                        <div class="info-value">{{ member.date_of_birth|date:"d/m/Y" }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Local de Nascimento</div>
+                        <div class="info-value">{{ member.place_of_birth }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Bilhete de Identidade (BI)</div>
+                        <div class="info-value">{{ member.national_id }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Telefone</div>
+                        <div class="info-value">{{ member.phone_number }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">E-mail</div>
+                        <div class="info-value">{{ member.email|default:"-" }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Morada</div>
+                        <div class="info-value">{{ member.address|default:"-" }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Município</div>
+                        <div class="info-value">{{ member.district|default:"-" }}</div>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <h5 class="fw-bold mb-4">
+                    <i class="bi bi-building me-2"></i>
+                    Informações do Membro e da Organização
+                </h5>
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="info-label">ID do Membro</div>
+                        <div class="info-value">{{ member.member_id_code|default:"-" }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Código</div>
+                        <div class="info-value">{{ member.codigo|default:"-" }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Cargo</div>
+                        <div class="info-value">{{ member.position }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Departamento</div>
+                        <div class="info-value">{{ member.department|default:"-" }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Tipo de Membro</div>
+                        <div class="info-value">{{ member.membership_type }}</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="info-label">Data de Registo</div>
+                        <div class="info-value">{{ member.registration_date|date:"d/m/Y" }}</div>
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    Documento de Suporte
+                </h5>
+
+                {% if member.supporting_document %}
+                    <a href="{{ member.supporting_document.url }}"
+                       target="_blank"
+                       class="document-link">
+                        <i class="bi bi-file-earmark-pdf fs-5"></i>
+                        Consultar Documento
+                    </a>
+                {% else %}
+                    <p class="text-muted mb-0">Não foi carregado nenhum documento de suporte.</p>
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        <!-- Ações de Aprovação -->
+        <div class="col-lg-4">
+
+            <div class="action-card">
+
+                <h5>
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                    Ações de Aprovação
+                </h5>
+
+                {% if member.status == 'Em Aprovação' %}
+
+                    <p class="text-muted">
+                        Por favor, verifique as informações do membro antes de aprovar.
+                    </p>
+
+                    <!-- Formulário de Aprovação -->
+                    <form method="POST"
+                          action="{% url 'members:approve' member.pk %}"
+                          onsubmit="return confirm('Tem a certeza de que pretende aprovar este membro?');">
+
+                        {% csrf_token %}
+
+                        <button type="submit" class="btn btn-success w-100 mb-3">
+                            <i class="bi bi-check-circle me-2"></i>
+                            Aprovar Membro
+                        </button>
+
+                    </form>
+
+                    <hr>
+
+                    <!-- Formulário de Rejeição -->
+                    <h6 class="fw-bold text-danger">
+                        <i class="bi bi-x-circle me-2"></i>
+                        Rejeitar Membro
+                    </h6>
+
+                    <form method="POST"
+                          action="{% url 'members:reject' member.pk %}"
+                          onsubmit="return confirm('Tem a certeza de que pretende rejeitar este membro?');">
+
+                        {% csrf_token %}
+
+                        <label class="form-label">
+                            Motivo da Rejeição
+                        </label>
+
+                        <textarea name="rejection_reason"
+                                  class="form-control mb-3"
+                                  rows="4"
+                                  required
+                                  placeholder="Escreva o motivo da rejeição..."></textarea>
+
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-x-circle me-2"></i>
+                            Rejeitar Membro
+                        </button>
+
+                    </form>
+
+                {% else %}
+
+                    <div class="alert alert-info">
+                        Este membro já tem o seguinte estado:
+                        <strong>{{ member.status }}</strong>
+                    </div>
+
+                    {% if member.reviewed_by %}
+                        <p class="mb-1">
+                            <strong>Verificado por:</strong>
+                            {{ member.reviewed_by }}
+                        </p>
+                    {% endif %}
+
+                    {% if member.reviewed_at %}
+                        <p class="mb-1">
+                            <strong>Data da Verificação:</strong>
+                            {{ member.reviewed_at|date:"d/m/Y H:i" }}
+                        </p>
+                    {% endif %}
+
+                    {% if member.rejection_reason %}
+                        <hr>
+                        <strong>Motivo da Rejeição:</strong>
+                        <p class="text-danger mb-0">{{ member.rejection_reason }}</p>
+                    {% endif %}
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
