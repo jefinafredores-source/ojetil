@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,12 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-w0)y!8d*^2_*s#x7#vqphtway1q8x1z_i((@i%ojg3^vn4fjqq'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-w0)y!8d*^2_*s#x7#vqphtway1q8x1z_i((@i%ojg3^vn4fjqq')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -58,8 +56,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
+
 
 ROOT_URLCONF = 'ojetil_project.urls'
 
@@ -89,15 +88,10 @@ WSGI_APPLICATION = 'ojetil_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_ojetil',
-        'USER':'root',
-        'PASSWORD':'12345678',
-        'HOST':'127.0.0.1',
-        'PORT':'3307'
-
-    }
+    'default': dj_database_url.config(
+        default='mysql://root:12345678@127.0.0.1:3307/db_ojetil',
+        conn_max_age=600
+    )
 }
 
 
