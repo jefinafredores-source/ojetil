@@ -6,8 +6,24 @@ django.setup()
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-if not User.objects.filter(username='vanov').exists():
-    User.objects.create_superuser('vanov', 'support@vanov.tl', 'vtlab2026')
-    print("Admin criado com sucesso!")
+# --- USER FOUN ---
+USERNAME = 'vanov'
+EMAIL = 'support@vanov.tl'
+PASSWORD = 'vtlab2026'
+
+user, created = User.objects.get_or_create(username=USERNAME, defaults={'email': EMAIL})
+user.email = EMAIL
+user.set_password(PASSWORD)
+user.is_staff = True
+user.is_superuser = True
+user.is_active = True
+user.save()
+
+if created:
+    print("Admin vanov kria ona!")
 else:
-    print("Admin ja existe!")
+    print("Admin vanov atualiza ona password!")
+
+# --- APAGA USER TUAN ---
+User.objects.filter(username='admin').delete()
+print("Admin tuan apaga ona!")
