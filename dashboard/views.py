@@ -1,3 +1,4 @@
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -7,6 +8,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Count
 
 from members.models import Member
+from events.models import Activity
 
 
 # ==========================================
@@ -16,7 +18,7 @@ from members.models import Member
 @login_required
 def dashboard_home(request):
 
-    # Estatisticas reais da base de dados
+    # Estatisticas reais dos membros
     total_members = Member.objects.count()
 
     # Membros Ativos
@@ -34,10 +36,15 @@ def dashboard_home(request):
         status='Inativo'
     ).count()
 
-    # Registos recentes
+    # Registos recentes de membros
     recent_registrations = Member.objects.order_by(
         '-created_at'
     )[:5]
+
+    # Atividades recentes (Events app)
+    recent_activities = Activity.objects.select_related(
+        'category'
+    ).order_by('-created_at')[:5]
 
     # Dados do grafico por municipio
     district_data = (
@@ -62,7 +69,10 @@ def dashboard_home(request):
         'approved_members': approved_members,
         'pending_members': pending_members,
         'inactive_members': inactive_members,
+
         'recent_registrations': recent_registrations,
+        'recent_activities': recent_activities,
+
         'district_labels': district_labels,
         'district_counts': district_counts,
     }
