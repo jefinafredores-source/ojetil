@@ -1,0 +1,1 @@
+web: gunicorn ojetil_project.wsgi --log-file -
