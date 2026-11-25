@@ -6,8 +6,8 @@ django.setup()
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@ojetil.com', 'admin123')
+if not User.objects.filter(username='vanov').exists():
+    User.objects.create_superuser('vanov', 'support@vanov.tl', 'vtlab2026')
     print("Admin criado com sucesso!")
 else:
     print("Admin ja existe!")
