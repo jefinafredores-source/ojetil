@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-w0)y!8d*^2_*s#x7#vqphtway1q8x1z_i((@i%ojg3^vn4fjqq')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['ojetil-1.onrender.com','localhost','127.0.0.1']
 
 
 # Application definition
@@ -148,7 +148,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     "staticfiles" :{
-        "BACKEND":"whitenoise.storage.CompressedMainFestStaticFilesStorage",
+        "BACKEND":"whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 
